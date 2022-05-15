@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.JsonWebTokens;
 using TradingSystemsMonitoring.DataModel.Identity;
 using TradingSystemsMonitoring.RestAPI.Services;
 
@@ -40,18 +41,12 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
             _jwtGenerator = jwtGenerator;
         }
 
-        [HttpPost("login")]
-        public async Task<ActionResult<TsmUserToken>> LoginAsync(TsmUserLoginData query, CancellationToken token)
-        {
-            return await new TsmUserLoginHandler(_userManager, _signInManager, _jwtGenerator).Handle(query, token);
-        }
-        
         [HttpGet("get")]
-        [Authorize]
         public IEnumerable<WeatherForecast> Get()
         {
-            var claims = HttpContext.User.Claims;
-            
+            //var user = _userManager.FindByLoginAsync(HttpContext.User.Claims)
+            //_userManager.GetRolesAsync(HttpContext.User.)
+            //var claims = HttpContext.User.Claims;
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {

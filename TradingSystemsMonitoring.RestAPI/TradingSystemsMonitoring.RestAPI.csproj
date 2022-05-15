@@ -8,17 +8,26 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.24" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Common" Version="3.1.26" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.16">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.17.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.9" />
+    <PackageReference Include="RabbitMQ.Client" Version="6.4.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.17.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\TradingSystemsMonitoring.DataModel\TradingSystemsMonitoring.DataModel.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="TradeDataAccessor.Shared">
+      <HintPath>..\..\..\Bin\Programs\MomentumM0\TradeDataAccessor.Shared.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
   </ItemGroup>
 
 

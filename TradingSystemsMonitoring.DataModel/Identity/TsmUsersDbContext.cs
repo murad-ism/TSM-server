@@ -1,12 +1,13 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace TradingSystemsMonitoring.DataModel.Identity
 {
-    public class TsmUsersDbContext : IdentityDbContext<TsmUser>
+    public class TsmUsersDbContext : IdentityDbContext<TsmUser, TsmRole, string>
     {
-        public TsmUsersDbContext(DbContextOptions<TsmUsersDbContext> options)  : base(options)
+        public TsmUsersDbContext(DbContextOptions<TsmUsersDbContext> options) : base(options)
         {
 
         }
@@ -20,8 +21,6 @@ namespace TradingSystemsMonitoring.DataModel.Identity
             builder.ApplyConfiguration(new IdentityUserClaimConfiguration());
             builder.ApplyConfiguration(new IdentityUserTokenConfiguration());
             builder.ApplyConfiguration(new IdentityUserLoginConfiguration());
-
-            
         }
     }
 }

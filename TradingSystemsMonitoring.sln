@@ -5,9 +5,11 @@ VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingSystemsMonitoring.RestAPI", "TradingSystemsMonitoring.RestAPI\TradingSystemsMonitoring.RestAPI.csproj", "{EB111860-0250-4A21-BD64-C130F835D439}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradingSystemsMonitoring.DataModel", "TradingSystemsMonitoring.DataModel\TradingSystemsMonitoring.DataModel.csproj", "{658773E8-9BC4-472B-A528-3BEB55E12D7C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingSystemsMonitoring.DataModel", "TradingSystemsMonitoring.DataModel\TradingSystemsMonitoring.DataModel.csproj", "{658773E8-9BC4-472B-A528-3BEB55E12D7C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradingSystemsMonitoring.Data", "TradingSystemsMonitoring.Data\TradingSystemsMonitoring.Data.csproj", "{7D802F7C-D365-4628-B634-8F6D412490CA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingSystemsMonitoring.Data", "TradingSystemsMonitoring.Data\TradingSystemsMonitoring.Data.csproj", "{7D802F7C-D365-4628-B634-8F6D412490CA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradingSystemsMonitoring.RestAPITests", "TradingSystemsMonitoring.RestAPITests\TradingSystemsMonitoring.RestAPITests.csproj", "{D4686D6A-8C3A-4272-8EEB-2C789D339774}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{7D802F7C-D365-4628-B634-8F6D412490CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7D802F7C-D365-4628-B634-8F6D412490CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D802F7C-D365-4628-B634-8F6D412490CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4686D6A-8C3A-4272-8EEB-2C789D339774}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4686D6A-8C3A-4272-8EEB-2C789D339774}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4686D6A-8C3A-4272-8EEB-2C789D339774}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4686D6A-8C3A-4272-8EEB-2C789D339774}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

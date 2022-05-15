@@ -1,35 +1,35 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 
 namespace TradingSystemsMonitoring.DataModel.Identity
 {
-    public class DataSeed
+    public class UserDbInitializer
     {
-        public static async Task SeedDataAsync(TsmUsersDbContext context, UserManager<TsmUser> userManager)
+        public static async Task SeedDataAsync(IConfiguration configuration,
+            UserManager<TsmUser> userManager, RoleManager<TsmRole> roleManager)
         {
             if (!userManager.Users.Any())
             {
-                var users = new List<TsmUser>
+                var userRole = new TsmRole
                 {
-                    new TsmUser
-                    {
-                        UserName = "TestUserFirst",
-                        Email = "testuserfirst@test.com"
-                    },
-
-                    new TsmUser
-                    {
-                        UserName = "TestUserSecond",
-                        Email = "testusersecond@test.com"
-                    }
+                    Name = TsmRoleNames.User
                 };
-                
-                foreach (var user in users)
+                await roleManager.CreateAsync(userRole);
+
+                var adminRole = new TsmRole
                 {
-                    await userManager.CreateAsync(user, "qazwsX123@");
-                }
+                    Name = TsmRoleNames.Admin
+                };
+                await roleManager.CreateAsync(adminRole);
+
+                var adminUser = new TsmUser
+                {
+                    UserName = "admin"
+                };
+                await userManager.CreateAsync(adminUser, configuration["AdminUserPwd"]);
+                await userManager.AddToRoleAsync(adminUser, adminRole.Name);
             }
         }
     }

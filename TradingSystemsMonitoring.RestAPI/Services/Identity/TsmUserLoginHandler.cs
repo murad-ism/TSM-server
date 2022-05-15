@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
@@ -25,7 +26,11 @@ namespace TradingSystemsMonitoring.DataModel.Identity
 
         public async Task<TsmUserToken> Login(TsmUserLoginData request, CancellationToken cancellationToken)
         {
-            var user = await _userManager.FindByEmailAsync(request.Email);
+
+            var user = !string.IsNullOrEmpty(request.Username) ?
+                await _userManager.FindByNameAsync(request.Username) :
+                await _userManager.FindByEmailAsync(request.Email);
+
             if (user == null)
             {
                 return null;
@@ -34,15 +39,66 @@ namespace TradingSystemsMonitoring.DataModel.Identity
             var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
             if (result.Succeeded)
             {
+                var userRoles = await _userManager.GetRolesAsync(user);
                 return new TsmUserToken
                 {
-                    Token = _jwtGenerator.CreateToken(user),
+                    Token = _jwtGenerator.CreateToken(user, userRoles.ToArray()),
                     UserName = user.UserName
                 };
             }
 
             return null;
         }
+        public async Task<OperationResult> AddUser(TsmUserRegisterData request, CancellationToken cancellationToken)
+        {
+            var user = await _userManager.FindByNameAsync(request.UserName);
+            if (user != null)
+            {
+                return new OperationResult(false, new[] { "Пользователь c таким логином уже сущесвует!" });
+            }
+
+            var tsmUser = new TsmUser
+            {
+                UserName = request.UserName,
+                Email = request.Email
+            };
+            var userResult = await _userManager.CreateAsync(tsmUser, request.Password);
+            var roleResult = await _userManager.AddToRoleAsync(tsmUser, TsmRoleNames.User);
+
+            if (userResult.Succeeded && roleResult.Succeeded)
+            {
+                return new OperationResult(true, null);
+            }
+            else
+            {
+                var errors = Enumerable.ToArray(userResult.Errors.Concat(roleResult.Errors))
+                    .Select(x => $"{x.Code}.{x.Description}").ToArray();
+
+                return new OperationResult(false, errors);
+            }
+        }
+
+        public async Task<OperationResult> DeleteUser(TsmUserRegisterData request, CancellationToken cancellationToken)
+        {
+            var user = await _userManager.FindByNameAsync(request.UserName);
+            if (user == null)
+            {
+                return new OperationResult(false, new[] { "Пользователя c таким логином не сущесвует!" });
+            }
+
+            var result = await _userManager.DeleteAsync(user);
+
+            if (result.Succeeded)
+            {
+                return new OperationResult(true, null);
+            }
+            else
+            {
+                return new OperationResult(false, Enumerable.ToArray(result.Errors)
+                    .Select(x => $"{x.Code}.{x.Description}").ToArray());
+            }
+        }
+
 
         public async Task Logout()
         {
@@ -52,6 +108,7 @@ namespace TradingSystemsMonitoring.DataModel.Identity
 
     public class TsmUserLoginData
     {
+        public string Username { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
     }
@@ -60,5 +117,24 @@ namespace TradingSystemsMonitoring.DataModel.Identity
     {
         public string UserName { get; set; }
         public string Token { get; set; }
+    }
+
+    public class TsmUserRegisterData
+    {
+        public string UserName { get; set; }
+        public string Email { get; set; }
+        public string Password { get; set; }
+    }
+
+    public class OperationResult
+    {
+        public bool IsSucceded { get; }
+        public string[] Errors { get; }
+
+        public OperationResult(bool isSucceded, string[] errors)
+        {
+            IsSucceded = isSucceded;
+            Errors = errors;
+        }
     }
 }

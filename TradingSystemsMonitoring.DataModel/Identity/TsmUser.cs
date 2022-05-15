@@ -7,5 +7,9 @@ namespace TradingSystemsMonitoring.DataModel.Identity
 {
     public class TsmUser : IdentityUser
     {
+        public TsmUser()
+        {
+            
+        }
     }
 }

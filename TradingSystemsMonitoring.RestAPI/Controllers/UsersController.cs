@@ -29,6 +29,7 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         public UsersController(ILogger<WeatherForecastController> logger, TsmUsersDbContext dbContext,
             UserManager<TsmUser> userManager, SignInManager<TsmUser> signInManager, IJwtGenerator jwtGenerator)
         {
+            
             _logger = logger;
             _dbContext = dbContext;
             _userManager = userManager;
@@ -36,25 +37,41 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
             _jwtGenerator = jwtGenerator;
         }
         
-        [HttpPost("login")]
+        [HttpPost("Login")]
+        [AllowAnonymous]
         public async Task<ActionResult<TsmUserToken>> LoginAsync(TsmUserLoginData query, CancellationToken token)
         {
             return await new TsmUserLoginHandler(_userManager, _signInManager, _jwtGenerator).Login(query, token);
         }
 
-        [HttpGet("logout")]
+        [HttpGet("Logout")]
         public async Task<ActionResult> LogoutAsync()
         {
-            
             try
             {
                 await new TsmUserLoginHandler(_userManager, _signInManager, _jwtGenerator).Logout();
                 return Ok();
             }
-            catch
+            catch(Exception e)
             {
                 return BadRequest(HttpStatusCode.InternalServerError);
             }
         }
+
+
+        [HttpPost("Add")]
+        [Authorize(Roles = TsmRoleNames.Admin)]
+        public async Task<ActionResult<OperationResult>> AddUserAsync(TsmUserRegisterData query, CancellationToken token)
+        {
+            return await new TsmUserLoginHandler(_userManager, _signInManager, _jwtGenerator).AddUser(query, token);
+        }
+
+        [HttpPost("Delete")]
+        [Authorize(Roles = TsmRoleNames.Admin)]
+        public async Task<ActionResult<OperationResult>> DeleteUserAsync(TsmUserRegisterData query, CancellationToken token)
+        {
+            return await new TsmUserLoginHandler(_userManager, _signInManager, _jwtGenerator).DeleteUser(query, token);
+        }
+
     }
 }

@@ -11,9 +11,9 @@ namespace TradingSystemsMonitoring.DataModel.Identity
             entity.ToTable("Users");
         }
     }
-    public class IdentityRoleConfiguration : IEntityTypeConfiguration<IdentityRole>
+    public class IdentityRoleConfiguration : IEntityTypeConfiguration<TsmRole>
     {
-        public void Configure(EntityTypeBuilder<IdentityRole> entity)
+        public void Configure(EntityTypeBuilder<TsmRole> entity)
         {
             entity.ToTable("Roles");
         }

@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using TradingSystemsMonitoring.DataModel.Identity;
@@ -13,7 +11,7 @@ namespace TradingSystemsMonitoring.RestAPI.Services
 {
     public interface IJwtGenerator
     {
-        string CreateToken(TsmUser user);
+        string CreateToken(TsmUser user, string[] userRoles);
     }
 
     public class JwtGenerator : IJwtGenerator
@@ -25,9 +23,18 @@ namespace TradingSystemsMonitoring.RestAPI.Services
             _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["TokenKey"]));
         }
 
-        public string CreateToken(TsmUser user)
+        public string CreateToken(TsmUser user, string[] userRoles)
         {
-            var claims = new List<Claim> { new Claim(JwtRegisteredClaimNames.NameId, user.UserName) };
+            var claims = new List<Claim>
+            {
+                new Claim(JwtRegisteredClaimNames.NameId, user.UserName)
+            };
+
+            foreach (var role in userRoles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
+
             var credentials = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
 
             var tokenDescriptor = new SecurityTokenDescriptor
