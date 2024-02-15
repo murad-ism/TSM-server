@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Serilog;
 using TradingSystemsMonitoring.RestAPI.Services.TrackingDataReceiver;
+using TradingSystemsMonitoring.RestAPITests;
 
 namespace TradingSystemsMonitoring.RestAPI.Hubs.Tests
 {
@@ -22,23 +24,19 @@ namespace TradingSystemsMonitoring.RestAPI.Hubs.Tests
         [TestMethod()]
         public void GetTradingDataTest()
         {
-            TrackingDataReceiver receiver = new TrackingDataReceiver();
-            
-
+            //TrackingDataReceiver receiver = new TrackingDataReceiver();
             //var cts = new CancellationTokenSource();
             //Test(cts.Token);
             while (true)
             {
-                
             }
         }
 
-        public async Task Test(CancellationToken token)
+        [TestMethod()]
+        public void Test()
         {
-            while (true)
-            {
-                await Task.Delay(5000, token);
-            }
+            TradingDataPublisher publisher = new TradingDataPublisher();
+            publisher.Publish();
         }
     }
 }

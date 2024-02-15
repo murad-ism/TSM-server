@@ -5,6 +5,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Serilog;
 using TradingSystemsMonitoring.RestAPI.Hubs;
 
 namespace TradingSystemsMonitoring.RestAPI.Services.TrackingDataReceiver
@@ -13,27 +15,29 @@ namespace TradingSystemsMonitoring.RestAPI.Services.TrackingDataReceiver
     {
         private ITrackingDataReceiver _trackingDataReceiver;
         private IHubContext<TradingDataMonitoringHub> _tradingDataMonitoringHub;
+        private ILogger<TrackingDataReceiver> _logger;
 
-        public TrackingDataHandler(ITrackingDataReceiver trackingDataReceiver, 
+        public TrackingDataHandler(ILogger<TrackingDataReceiver> logger,
+        ITrackingDataReceiver trackingDataReceiver,
             IHubContext<TradingDataMonitoringHub> tradingDataMonitoringHub)
         {
             _trackingDataReceiver = trackingDataReceiver;
             _tradingDataMonitoringHub = tradingDataMonitoringHub;
+            _logger = logger;
         }
-        
+
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                _trackingDataReceiver.DataReceived += _trackingDataReceiver_DataReceived;
-                _trackingDataReceiver.StartDataReceive();
+                _trackingDataReceiver.OnDataReceived += _trackingDataReceiver_DataReceived;
+                await _trackingDataReceiver.BeginReceiveData(stoppingToken);
                 await Task.Delay(Timeout.Infinite, stoppingToken);
             }
         }
-        
+
         private void _trackingDataReceiver_DataReceived(string obj)
         {
-            //_tradingDataMonitoringHub.Clients.All.SendAsync("ReceiveTradingDataUpdate", obj);
             _tradingDataMonitoringHub.NotifyAllClients(obj);
         }
     }

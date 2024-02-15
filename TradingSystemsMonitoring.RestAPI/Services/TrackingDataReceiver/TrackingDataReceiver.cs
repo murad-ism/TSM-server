@@ -1,50 +1,49 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
+using Microsoft.Extensions.Logging;
+using NetMQ;
+using NetMQ.Sockets;
 
 namespace TradingSystemsMonitoring.RestAPI.Services.TrackingDataReceiver
 {
     public interface ITrackingDataReceiver
     {
-        public event Action<string> DataReceived;
-        public void StartDataReceive();
+        public event Action<string> OnDataReceived;
+        public Task BeginReceiveData(CancellationToken token);
     }
 
     public class TrackingDataReceiver : ITrackingDataReceiver
     {
-        public event Action<string> DataReceived;
-        private string _hostName = "localhost";
-        private string _queueId = "algoTradeTrackingDataQueue";
-
-        public void StartDataReceive()
+        //todo: !!! вынести в конфиг
+        private string _tradingDataReceiveUrl = "tcp://127.0.0.1:5556";
+        private string _tradingDataReceiveTopic = "tradingDataChannel";
+        public event Action<string> OnDataReceived;
+        private ILogger<TrackingDataReceiver> _logger;
+        public TrackingDataReceiver(ILogger<TrackingDataReceiver> logger)
         {
-            var factory = new ConnectionFactory()
-            {
-                HostName = _hostName,
-            };
-            var connection = factory.CreateConnection();
-            var channel = connection.CreateModel();
+            _logger = logger;
+        }
 
-            channel.QueueDeclare(queue: _queueId,
-                durable: false,
-                exclusive: false,
-                autoDelete: false,
-                arguments: null);
-
-            var consumer = new EventingBasicConsumer(channel);
-            consumer.Received += (model, ea) =>
+        public async Task BeginReceiveData(CancellationToken token)
+        {
+            await Task.Run(ReceiveData);
+        }
+        
+        private void ReceiveData()
+        {
+            using (var subscriber = new SubscriberSocket())
             {
-                var body = ea.Body.ToArray();
-                var message = Encoding.UTF8.GetString(body);
-                DataReceived(message);
-            };
-            channel.BasicConsume(queue: _queueId,
-                autoAck: true,
-                consumer: consumer);
+                subscriber.Connect(_tradingDataReceiveUrl);
+                subscriber.Subscribe(_tradingDataReceiveTopic);
+
+                while (true)
+                {
+                    var topic = subscriber.ReceiveFrameString();
+                    var msg = subscriber.ReceiveFrameString();
+                    OnDataReceived?.Invoke(msg);
+                }
+            }
         }
     }
 }

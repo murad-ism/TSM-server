@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>TradingSystemsMonitoring.RestAPI</name>
+    </assembly>
+    <members>
+        <member name="T:TradingSystemsMonitoring.RestAPI.Controllers.TradingDataController.TradesParams">
+            <summary>
+            Trade params.
+            </summary>
+        </member>
+        <member name="M:TradingSystemsMonitoring.RestAPI.Controllers.TradingDataController.GetTrades(TradingSystemsMonitoring.RestAPI.Controllers.TradingDataController.TradesParams)">
+            <summary>
+            Get completed trades entities.
+            </summary>
+            <param name="tradesParams"><see cref="T:TradingSystemsMonitoring.RestAPI.Controllers.TradingDataController.TradesParams">Trade params.</see></param>
+            <returns><see cref="T:System.Collections.Generic.IEnumerable`1">Trades.</see></returns>
+        </member>
+        <member name="M:TradingSystemsMonitoring.RestAPI.Controllers.TradingDataController.GetTradesCount(TradingSystemsMonitoring.RestAPI.Controllers.TradingDataController.TradesParams)">
+            <summary>
+            Get completed trades count.
+            </summary>
+            <param name="tradesParams"><see cref="T:TradingSystemsMonitoring.RestAPI.Controllers.TradingDataController.TradesParams">Trade params.</see></param>
+            <returns><see cref="T:System.Int32">Trades count.</see></returns>
+        </member>
+        <member name="M:TradingSystemsMonitoring.RestAPI.Controllers.TradingDataController.GetLogRecords(TradingSystemsMonitoring.RestAPI.Controllers.TradingDataController.TradingLogRecordParams)">
+            <summary>
+            Get log records.
+            </summary>
+            <param name="logParams"><see cref="T:TradingSystemsMonitoring.RestAPI.Controllers.TradingDataController.TradingLogRecordParams">Log record params.</see></param>
+            <returns><see cref="T:System.Collections.Generic.IEnumerable`1">Log records.</see></returns>
+        </member>
+        <member name="M:TradingSystemsMonitoring.RestAPI.Controllers.TradingDataController.GetSystemIds">
+            <summary>
+            Get system ids.
+            </summary>
+            <returns><see cref="!:string[]">Securities</see></returns>
+        </member>
+        <member name="M:TradingSystemsMonitoring.RestAPI.Controllers.TradingDataController.GetAccountIds">
+            <summary>
+            Get securities.
+            </summary>
+            <returns><see cref="!:string[]">Securities</see></returns>
+        </member>
+        <member name="M:TradingSystemsMonitoring.RestAPI.Controllers.TradingDataController.GetSecurityIds">
+            <summary>
+            Get securities.
+            </summary>
+            <returns><see cref="!:Security[]">Securities</see></returns>
+        </member>
+        <member name="M:TradingSystemsMonitoring.RestAPI.Controllers.UsersController.LoginAsync(TradingSystemsMonitoring.DataModel.Identity.TsmUserLoginData,System.Threading.CancellationToken)">
+            <summary>
+            Login by user.
+            </summary>
+            <param name="loginData"><see cref="T:TradingSystemsMonitoring.DataModel.Identity.TsmUserLoginData">Trade params.</see></param>
+            <returns><see cref="T:TradingSystemsMonitoring.DataModel.Identity.TsmUserToken">User token.</see></returns>
+        </member>
+        <member name="M:TradingSystemsMonitoring.RestAPI.Controllers.UsersController.LogoutAsync">
+            <summary>
+            Logout by user.
+            </summary>
+        </member>
+        <member name="M:TradingSystemsMonitoring.RestAPI.Controllers.UsersController.AddUserAsync(TradingSystemsMonitoring.DataModel.Identity.TsmUserRegisterData,System.Threading.CancellationToken)">
+            <summary>
+            Add user (admin only).
+            </summary>
+        </member>
+        <member name="M:TradingSystemsMonitoring.RestAPI.Controllers.UsersController.DeleteUserAsync(TradingSystemsMonitoring.DataModel.Identity.TsmUserRegisterData,System.Threading.CancellationToken)">
+            <summary>
+            Delete user (admin only).
+            </summary>
+        </member>
+    </members>
+</doc>

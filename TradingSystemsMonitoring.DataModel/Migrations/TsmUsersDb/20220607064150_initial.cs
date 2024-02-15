@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
-namespace TradingSystemsMonitoring.DataModel.Migrations
+namespace TradingSystemsMonitoring.DataModel.Migrations.TsmUsersDb
 {
     public partial class initial : Migration
     {

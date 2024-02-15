@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using TradingSystemsMonitoring.DataModel.Entities.Identity;
 using TradingSystemsMonitoring.DataModel.Identity;
 
 namespace TradingSystemsMonitoring.RestAPI.Services

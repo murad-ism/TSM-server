@@ -1,50 +1,68 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using TradingSystemsMonitoring.DataModel.DbContext;
+using TradingSystemsMonitoring.DataModel.Entities.Identity;
 using TradingSystemsMonitoring.DataModel.Identity;
 using TradingSystemsMonitoring.RestAPI.Services;
 
 namespace TradingSystemsMonitoring.RestAPI.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [ApiConventionType(typeof(DefaultApiConventions))]
+    [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
-        private readonly ILogger<WeatherForecastController> _logger;
+        private readonly ILogger<UsersController> _logger;
         private readonly TsmUsersDbContext _dbContext;
-
         private readonly UserManager<TsmUser> _userManager;
         private readonly SignInManager<TsmUser> _signInManager;
         private readonly IJwtGenerator _jwtGenerator;
 
-        public UsersController(ILogger<WeatherForecastController> logger, TsmUsersDbContext dbContext,
+        public UsersController(ILogger<UsersController> logger, TsmUsersDbContext dbContext,
             UserManager<TsmUser> userManager, SignInManager<TsmUser> signInManager, IJwtGenerator jwtGenerator)
         {
-            
             _logger = logger;
             _dbContext = dbContext;
             _userManager = userManager;
             _signInManager = signInManager;
             _jwtGenerator = jwtGenerator;
         }
-        
-        [HttpPost("Login")]
-        [AllowAnonymous]
-        public async Task<ActionResult<TsmUserToken>> LoginAsync(TsmUserLoginData query, CancellationToken token)
-        {
-            return await new TsmUserLoginHandler(_userManager, _signInManager, _jwtGenerator).Login(query, token);
-        }
 
+        /// <summary>
+        /// Login by user.
+        /// </summary>
+        /// <param name="loginData"><see cref="TsmUserLoginData">Trade params.</see></param>
+        /// <returns><see cref="TsmUserToken">User token.</see></returns>
+        [AllowAnonymous]
+        [HttpPost("Login")]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(TsmUserToken), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<TsmUserToken>> LoginAsync(TsmUserLoginData loginData, CancellationToken token)
+        {
+            return await new TsmUserLoginHandler(_userManager, _signInManager, _jwtGenerator).Login(loginData, token);
+        }
+        
+        /// <summary>
+        /// Logout by user.
+        /// </summary>
+        [AllowAnonymous]
         [HttpGet("Logout")]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> LogoutAsync()
         {
             try
@@ -54,24 +72,39 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
             }
             catch(Exception e)
             {
+                _logger.LogError(e.ToString());
                 return BadRequest(HttpStatusCode.InternalServerError);
             }
         }
-
-
+        
+        /// <summary>
+        /// Add user (admin only).
+        /// </summary>
         [HttpPost("Add")]
         [Authorize(Roles = TsmRoleNames.Admin)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<OperationResult>> AddUserAsync(TsmUserRegisterData query, CancellationToken token)
         {
             return await new TsmUserLoginHandler(_userManager, _signInManager, _jwtGenerator).AddUser(query, token);
         }
-
+        
+        /// <summary>
+        /// Delete user (admin only).
+        /// </summary>
         [HttpPost("Delete")]
         [Authorize(Roles = TsmRoleNames.Admin)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<OperationResult>> DeleteUserAsync(TsmUserRegisterData query, CancellationToken token)
         {
             return await new TsmUserLoginHandler(_userManager, _signInManager, _jwtGenerator).DeleteUser(query, token);
         }
-
     }
 }

@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using TradingSystemsMonitoring.DataModel.Entities.Identity;
 using TradingSystemsMonitoring.RestAPI.Services;
 
 namespace TradingSystemsMonitoring.DataModel.Identity
