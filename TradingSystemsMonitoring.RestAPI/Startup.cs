@@ -41,8 +41,13 @@ namespace TradingSystemsMonitoring.RestAPI
         {
             TradingDataDbSettings.ReadConfiguration(Configuration);
             TradingLogRecordsDbSettings.ReadConfiguration(Configuration);
+            
             services.AddDbContext<TsmUsersDbContext>(options =>
                 options.UseNpgsql(Configuration.GetConnectionString("UsersDbConection")));
+
+            services.AddDbContext<TradingDataDbContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("TradingDataDbConnection")));
+
             var builder = services.AddIdentityCore<TsmUser>();
             var identityBuilder = new IdentityBuilder(builder.UserType, builder.Services);
             identityBuilder.AddRoles<TsmRole>();

@@ -5,11 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TradingSystemsMonitoring.DataModel\TradingSystemsMonitoring.DataModel.csproj" />
+    <Compile Remove="Trading\**" />
+    <EmbeddedResource Remove="Trading\**" />
+    <None Remove="Trading\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Trading\" />
+    <ProjectReference Include="..\TradingSystemsMonitoring.DataModel\TradingSystemsMonitoring.DataModel.csproj" />
   </ItemGroup>
 
 </Project>
