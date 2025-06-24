@@ -1,0 +1,3 @@
+ECHO Stopping services...
+docker-compose down
+pause

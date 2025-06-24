@@ -29,7 +29,7 @@ namespace TradingSystemsMonitoring.DataModel.DbContext.Seed
                 {
                     UserName = "admin"
                 };
-                await userManager.CreateAsync(adminUser, configuration["AdminUserPwd"]);
+                await userManager.CreateAsync(adminUser, configuration["Identity:TokenKey"]);
                 await userManager.AddToRoleAsync(adminUser, adminRole.Name);
             }
         }

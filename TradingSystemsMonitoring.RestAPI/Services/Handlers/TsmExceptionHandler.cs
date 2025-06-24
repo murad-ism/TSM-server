@@ -29,7 +29,6 @@ namespace TradingSystemsMonitoring.RestAPI.Services.Handlers
             var ex = exceptionDetails?.Error;
             context.Response.StatusCode = 500;
             context.Response.ContentType = "application/problem+json";
-
             var includeExDetails = !_env.IsProduction();
             
             var detailsFactory = context.RequestServices.GetRequiredService<ProblemDetailsFactory>();

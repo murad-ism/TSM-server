@@ -4,9 +4,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using TradingSystemsMonitoring.Data;
 using TradingSystemsMonitoring.Data.Services.DTO;
+using TradingSystemsMonitoring.DataModel.DbContext;
+using TradingSystemsMonitoring.DataModel.DbContext.Factories;
 using TradingSystemsMonitoring.DataModel.Entities.Trading;
 using TradingSystemsMonitoring.RestAPI.Controllers.Base;
 
@@ -14,9 +16,12 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class TradingDataController : TsmDbControllerBase
+    public class TradingDataController : TsmController
     {
-        public TradingDataController(ILogger<TradingDataController> logger) : base(logger) { }
+        public TradingDataController(ILogger<TradingDataController> logger, 
+            IDbContextFactory<TradingDataDbContext> tradingDbFac, ITradingLogRecordDbFactory tradingLogsDbFac) : base(logger, tradingDbFac, tradingLogsDbFac)
+        {
+        }
 
         /// <summary>
         /// Trade params.
@@ -32,10 +37,10 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         }
 
         /// <summary>
-        /// Get completed trades entities.
+        /// Get completed trades by params.
         /// </summary>
         /// <param name="tradesParams"><see cref="TradesParams">Trade params.</see></param>
-        /// <returns><see cref="IEnumerable{AccountClosedTradeDTO}">Trades.</see></returns>
+        /// <returns>Trades collection of type <see cref="AccountClosedTradeDTO"/>.</returns>
         [AllowAnonymous]
         [HttpPost("Trades")]
         [Produces("application/json")]
@@ -45,17 +50,17 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<AccountClosedTradeDTO>> GetTrades([FromBody] TradesParams tradesParams)
         {
-            var trades = await TsmDbService.AccountClosedTradesSvc.SearchByParams(
+            var trades = await AccountClosedTradesService.SearchByParams(
                 tradesParams.SystemId, tradesParams.SecurityId, tradesParams.DateFrom, tradesParams.DateTo,
                 tradesParams.PageIndex, tradesParams.PageSize);
             return Ok(trades);
         }
 
         /// <summary>
-        /// Get completed trades count.
+        /// Get completed trades count by params.
         /// </summary>
         /// <param name="tradesParams"><see cref="TradesParams">Trade params.</see></param>
-        /// <returns><see cref="int">Trades count.</see></returns>
+        /// <returns>Trades count.</returns>
         [AllowAnonymous]
         [HttpPost("TradesCount")]
         [Produces("application/json")]
@@ -65,7 +70,7 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<int>> GetTradesCount([FromBody] TradesParams tradesParams)
         {
-            var trades = await TsmDbService.AccountClosedTradesSvc.CountByParams(
+            var trades = await AccountClosedTradesService.CountByParams(
                 tradesParams.SystemId, tradesParams.SecurityId, tradesParams.DateFrom, tradesParams.DateTo);
             return Ok(trades);
         }
@@ -77,10 +82,12 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         }
 
         /// <summary>
-        /// Get log records.
+        /// Get trading system log records by params.
         /// </summary>
         /// <param name="logParams"><see cref="TradingLogRecordParams">Log record params.</see></param>
-        /// <returns><see cref="IEnumerable{TradingLogRecordDTO}">Log records.</see></returns>
+        /// <returns>
+        /// Trading logs collection of type <see cref="TradingLogRecordDTO"/>.
+        /// </returns>
         [AllowAnonymous]
         [HttpPost("LogRecords")]
         [Produces("application/json")]
@@ -88,17 +95,17 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<TradingLogRecordDTO>> GetLogRecords([FromBody] TradingLogRecordParams logParams)
+        public async Task<ActionResult<IEnumerable<TradingLogRecordDTO>>> GetLogRecords([FromBody] TradingLogRecordParams logParams)
         {
-            var logRecords = await TradingLogRecordDbService.LogsSvc.GetLogRecordsByDate(
+            var logRecords = await TradingLogRecordDbService.GetRecordsByDate(
                 logParams.SystemId, logParams.Date);
             return Ok(logRecords);
         }
 
         /// <summary>
-        /// Get system ids.
+        /// Get all trading system codes.
         /// </summary>
-        /// <returns><see cref="string[]">Securities</see></returns>
+        /// <returns>System codes collection.</returns>
         [AllowAnonymous]
         [HttpGet("Trades/SystemIds")]
         [Produces("application/json")]
@@ -108,14 +115,14 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<string[]>> GetSystemIds()
         {
-            var systemIds = await TsmDbService.AccountClosedTradesSvc.GetSystemIds();
+            var systemIds = await AccountClosedTradesService.GetSystemIds();
             return Ok(systemIds);
         }
 
         /// <summary>
-        /// Get securities.
+        /// Get all account codes.
         /// </summary>
-        /// <returns><see cref="string[]">Securities</see></returns>
+        /// <returns>Accounts codes collection.</returns>
         [AllowAnonymous]
         [HttpGet("Trades/AccountIds")]
         [Produces("application/json")]
@@ -125,15 +132,14 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<string[]>> GetAccountIds()
         {
-            var systemIds = await TsmDbService.AccountClosedTradesSvc.GetAccountIds();
+            var systemIds = await AccountClosedTradesService.GetAccountIds();
             return Ok(systemIds);
         }
 
-
         /// <summary>
-        /// Get securities.
+        /// Get all trading securities.
         /// </summary>
-        /// <returns><see cref="Security[]">Securities</see></returns>
+        /// <returns>Securities collection.</returns>
         [AllowAnonymous]
         [HttpGet("Securities")]
         [Produces("application/json")]
@@ -143,7 +149,7 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<Security[]>> GetSecurityIds()
         {
-            var securities = await TsmDbService.SecuritySvc.GetSecurities();
+            var securities = await SecurityService.GetSecurities();
             return Ok(securities);
         }
     }

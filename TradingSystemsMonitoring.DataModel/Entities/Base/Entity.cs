@@ -2,10 +2,8 @@
 
 namespace TradingSystemsMonitoring.DataModel.Entities.Base
 {
-    public class BaseEntity { }
-
     /// <summary>
-    /// Базовая сущность
+    /// Базовая сущность в модели данных c идентификатором.
     /// </summary>
     public class Entity<T> : BaseEntity, IEntity<T>
     {

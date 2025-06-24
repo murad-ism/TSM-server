@@ -4,7 +4,7 @@ using TradingSystemsMonitoring.DataModel.Entities.Base;
 namespace TradingSystemsMonitoring.DataModel.Entities.Trading
 {
     /// <summary>
-    /// Завершенные сделки
+    /// Завершенные сделки.
     /// </summary>
     public class AccountClosedTrade : Entity<long>
     {
@@ -19,10 +19,9 @@ namespace TradingSystemsMonitoring.DataModel.Entities.Trading
         public string SystemId { get; set; }
         
         /// <summary>
-        /// Инструмент
+        /// Торговый инструмент.
         /// </summary>
         public long fk_SecurityId { get; set; }
-
         public virtual Security Security { get; set; }
         
         /// <summary>
@@ -34,7 +33,6 @@ namespace TradingSystemsMonitoring.DataModel.Entities.Trading
         /// Дата закрытия
         /// </summary>
         public DateTime? ClosingDate { get; set; }
-
 
         /// <summary>
         /// Цена открытия (средняя)
@@ -56,13 +54,24 @@ namespace TradingSystemsMonitoring.DataModel.Entities.Trading
         /// </summary>
         public byte Operation { get; set; }
 
+        /// <summary>
+        /// Код фьючерса.
+        /// </summary>
         public string FutCode { get; set; }
 
         /// <summary>
-        /// Итоговый результат сделки
+        /// Итоговый результат сделки (в тиках).
         /// </summary>
         public double ResultInTicks { get; set; }
+
+        /// <summary>
+        /// Итоговый результат сделки (в процентах).
+        /// </summary>
         public double ResultInPercent { get; set; }
+
+        /// <summary>
+        /// Итоговый результат сделки (в ден. единицах).
+        /// </summary>
         public double ResultInCash { get; set; }
 
     }

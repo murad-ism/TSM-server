@@ -2,14 +2,11 @@
 
 namespace TradingSystemsMonitoring.DataModel.Entities.Identity
 {
+    /// <summary>
+    /// Роль пользователя в системе мониторинга торговых систем.
+    /// </summary>
     public class TsmRole : IdentityRole
     {
         public TsmRole() { }
-    }
-
-    public struct TsmRoleNames
-    {
-        public const string Admin = "admin";
-        public const string User = "user";
     }
 }

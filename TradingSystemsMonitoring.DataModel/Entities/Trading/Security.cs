@@ -3,11 +3,26 @@ using TradingSystemsMonitoring.DataModel.Entities.Base;
 
 namespace TradingSystemsMonitoring.DataModel.Entities.Trading
 {
+    /// <summary>
+    /// Торговый инструмент.
+    /// </summary>
     public class Security : Entity<long>
     {
         public override long Id { get; set; }
+
+        /// <summary>
+        /// Код биржи.
+        /// </summary>
         public string Exchange { get; set; }
+
+        /// <summary>
+        /// Класс инструмента.
+        /// </summary>
         public string Class { get; set; }
+
+        /// <summary>
+        /// Тикер инструмента.
+        /// </summary>
         public string Ticker { get; set; }
 
         public virtual ICollection<AccountClosedTrade> AccountClosedTrades { get; set; }

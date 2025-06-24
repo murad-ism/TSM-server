@@ -9,8 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using TradingSystemsMonitoring.DataModel.DbContext;
 using TradingSystemsMonitoring.DataModel.Entities.Identity;
-using TradingSystemsMonitoring.DataModel.Identity;
-using TradingSystemsMonitoring.RestAPI.Services;
+using TradingSystemsMonitoring.RestAPI.Services.Identity;
 
 namespace TradingSystemsMonitoring.RestAPI.Controllers
 {
@@ -38,8 +37,8 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         /// <summary>
         /// Login by user.
         /// </summary>
-        /// <param name="loginData"><see cref="TsmUserLoginData">Trade params.</see></param>
-        /// <returns><see cref="TsmUserToken">User token.</see></returns>
+        /// <param name="loginData"><see cref="TsmUserLoginData">Login params.</see></param>
+        /// <returns>User token of type <see cref="TsmUserToken"/>.</returns>
         [AllowAnonymous]
         [HttpPost("Login")]
         [Produces("application/json")]
@@ -49,7 +48,7 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<TsmUserToken>> LoginAsync(TsmUserLoginData loginData, CancellationToken token)
         {
-            return await new TsmUserLoginHandler(_userManager, _signInManager, _jwtGenerator).Login(loginData, token);
+            return await new TsmUsersService(_userManager, _signInManager, _jwtGenerator).Login(loginData, token);
         }
         
         /// <summary>
@@ -67,7 +66,7 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         {
             try
             {
-                await new TsmUserLoginHandler(_userManager, _signInManager, _jwtGenerator).Logout();
+                await new TsmUsersService(_userManager, _signInManager, _jwtGenerator).Logout();
                 return Ok();
             }
             catch(Exception e)
@@ -78,7 +77,7 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         }
         
         /// <summary>
-        /// Add user (admin only).
+        /// Add user (admin role required).
         /// </summary>
         [HttpPost("Add")]
         [Authorize(Roles = TsmRoleNames.Admin)]
@@ -89,11 +88,11 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<OperationResult>> AddUserAsync(TsmUserRegisterData query, CancellationToken token)
         {
-            return await new TsmUserLoginHandler(_userManager, _signInManager, _jwtGenerator).AddUser(query, token);
+            return await new TsmUsersService(_userManager, _signInManager, _jwtGenerator).AddUser(query, token);
         }
-        
+
         /// <summary>
-        /// Delete user (admin only).
+        /// Delete user (admin role required).
         /// </summary>
         [HttpPost("Delete")]
         [Authorize(Roles = TsmRoleNames.Admin)]
@@ -102,9 +101,9 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<OperationResult>> DeleteUserAsync(TsmUserRegisterData query, CancellationToken token)
+        public async Task<ActionResult<OperationResult>> DeleteUserAsync(string userName, CancellationToken token)
         {
-            return await new TsmUserLoginHandler(_userManager, _signInManager, _jwtGenerator).DeleteUser(query, token);
+            return await new TsmUsersService(_userManager, _signInManager, _jwtGenerator).DeleteUser(userName, token);
         }
     }
 }

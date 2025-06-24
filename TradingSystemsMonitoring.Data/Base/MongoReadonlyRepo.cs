@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
-using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace TradingSystemsMonitoring.Data.Base
@@ -15,7 +14,6 @@ namespace TradingSystemsMonitoring.Data.Base
         protected MongoReadonlyRepo(IMongoDatabase database)
         {
             EntitySet = database.GetCollection<T>(MongoCollectionName);
-            
         }
         
         public virtual IQueryable<T> GetAll()

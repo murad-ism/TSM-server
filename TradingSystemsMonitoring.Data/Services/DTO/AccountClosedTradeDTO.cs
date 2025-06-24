@@ -3,19 +3,22 @@
 namespace TradingSystemsMonitoring.Data.Services.DTO
 {
     /// <summary>
-    /// Совершенная сделка.
+    /// Торговая сделка.
     /// </summary>
     public class AccountClosedTradeDTO
     {
         public long Id { get; set; }
+
         /// <summary>
-        /// Аккаунт (номер счета)
+        /// Account код.
         /// </summary>
         public string AccountId { get; set; }
+
         /// <summary>
-        /// Идентификатор торговой системы
+        /// Trading system идентификатор.
         /// </summary>
         public string SystemId { get; set; }
+
         /// <summary>
         /// Инструмент
         /// </summary>

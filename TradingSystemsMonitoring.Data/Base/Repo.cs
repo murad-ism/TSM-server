@@ -6,7 +6,10 @@ using TradingSystemsMonitoring.DataModel.Entities.Base;
 
 namespace TradingSystemsMonitoring.Data.Base
 {
-
+    /// <summary>
+    /// Базовый класс репозитория для работы с данными.
+    /// </summary>
+    /// <typeparam name="T">Тип модели данных (Entity).</typeparam>
     public abstract class Repo<T> : IRepo<T> where T : BaseEntity
     {
         protected DbContext Context;
@@ -33,7 +36,9 @@ namespace TradingSystemsMonitoring.Data.Base
             var entity = EntitySet.Where(predicate).FirstOrDefault();
             return entity;
         }
+
         public abstract T Create();
+
         public virtual T Add(T entity)
         {
             if (Context.Entry(entity).State != EntityState.Detached)

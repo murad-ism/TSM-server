@@ -1,0 +1,3 @@
+ECHO Starting containers...
+docker-compose up -d --build
+pause

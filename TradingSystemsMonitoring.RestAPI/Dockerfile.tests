@@ -1,0 +1,25 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS testrunner
+
+WORKDIR /src
+
+# Copy project files
+COPY ./TradingSystemsMonitoring.DataModel/*.csproj ./TradingSystemsMonitoring.DataModel/
+COPY ./TradingSystemsMonitoring.Data/*.csproj ./TradingSystemsMonitoring.Data/
+COPY ./TradingSystemsMonitoring.RestAPI/*.csproj ./TradingSystemsMonitoring.RestAPI/
+COPY ./TradingSystemsMonitoring.Tests/*.csproj ./TradingSystemsMonitoring.Tests/
+COPY ./TradingSystemsMonitoring.ApiTests/*.csproj ./TradingSystemsMonitoring.ApiTests/
+
+# Copy everything else
+COPY . .
+
+# Restore and build
+RUN dotnet restore "./TradingSystemsMonitoring.RestAPI/TradingSystemsMonitoring.RestAPI.csproj"
+RUN dotnet build "./TradingSystemsMonitoring.RestAPI/TradingSystemsMonitoring.RestAPI.csproj" --configuration Release
+
+# Default command to run tests
+CMD ["sh", "-c", "\
+  echo 'Running unit tests...' && \
+  dotnet test TradingSystemsMonitoring.Tests/TradingSystemsMonitoring.Tests.csproj --configuration Release && \
+  echo 'Running API tests...' && \
+  dotnet test TradingSystemsMonitoring.ApiTests/TradingSystemsMonitoring.ApiTests.csproj --configuration Release \
+"]

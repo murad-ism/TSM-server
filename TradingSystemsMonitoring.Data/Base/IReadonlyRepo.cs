@@ -4,6 +4,10 @@ using System.Linq.Expressions;
 
 namespace TradingSystemsMonitoring.Data.Base
 {
+    /// <summary>
+    /// Репозиторий на чтение для работы с данными.
+    /// </summary>
+    /// <typeparam name="T">Тип модели данных (Entity).</typeparam>
     public interface IReadonlyRepo<T> where T : class
     {
         IQueryable<T> GetAll();

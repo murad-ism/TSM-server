@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30413.136
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35303.130
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingSystemsMonitoring.RestAPI", "TradingSystemsMonitoring.RestAPI\TradingSystemsMonitoring.RestAPI.csproj", "{EB111860-0250-4A21-BD64-C130F835D439}"
 EndProject
@@ -9,7 +9,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingSystemsMonitoring.Da
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingSystemsMonitoring.Data", "TradingSystemsMonitoring.Data\TradingSystemsMonitoring.Data.csproj", "{7D802F7C-D365-4628-B634-8F6D412490CA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingSystemsMonitoring.RestAPITests", "TradingSystemsMonitoring.RestAPITests\TradingSystemsMonitoring.RestAPITests.csproj", "{D4686D6A-8C3A-4272-8EEB-2C789D339774}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradingSystemsMonitoring.Tests", "TradingSystemsMonitoring.Tests\TradingSystemsMonitoring.Tests.csproj", "{C59851FE-0C7C-437D-A777-D69B8E2B5D3B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradingSystemsMonitoring.ApiTests", "TradingSystemsMonitoring.ApiTests\TradingSystemsMonitoring.ApiTests.csproj", "{8D0C9315-5C92-43F7-B353-3477D50B5AF9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{81DDED9D-158B-E303-5F62-77A2896D2A5A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
+	ProjectSection(SolutionItems) = preProject
+		docker-start.cmd = docker-start.cmd
+		docker-stop.cmd = docker-stop.cmd
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,13 +41,25 @@ Global
 		{7D802F7C-D365-4628-B634-8F6D412490CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7D802F7C-D365-4628-B634-8F6D412490CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D802F7C-D365-4628-B634-8F6D412490CA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D4686D6A-8C3A-4272-8EEB-2C789D339774}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D4686D6A-8C3A-4272-8EEB-2C789D339774}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D4686D6A-8C3A-4272-8EEB-2C789D339774}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D4686D6A-8C3A-4272-8EEB-2C789D339774}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C59851FE-0C7C-437D-A777-D69B8E2B5D3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C59851FE-0C7C-437D-A777-D69B8E2B5D3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C59851FE-0C7C-437D-A777-D69B8E2B5D3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C59851FE-0C7C-437D-A777-D69B8E2B5D3B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D0C9315-5C92-43F7-B353-3477D50B5AF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D0C9315-5C92-43F7-B353-3477D50B5AF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D0C9315-5C92-43F7-B353-3477D50B5AF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D0C9315-5C92-43F7-B353-3477D50B5AF9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81DDED9D-158B-E303-5F62-77A2896D2A5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81DDED9D-158B-E303-5F62-77A2896D2A5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81DDED9D-158B-E303-5F62-77A2896D2A5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81DDED9D-158B-E303-5F62-77A2896D2A5A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C59851FE-0C7C-437D-A777-D69B8E2B5D3B} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{8D0C9315-5C92-43F7-B353-3477D50B5AF9} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {385B5D7C-3E66-4262-8D46-EEA8A1EB8DAE}
