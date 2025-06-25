@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <SatelliteResourceLanguages>en-US;ru-RU</SatelliteResourceLanguages>
     <DocumentationFile>D:\Trading\Algo\Sources\TradeSystemMonitoring\TradingSystemsMonitoring.RestAPI\TradingSystemsMonitoring.RestAPI.xml</DocumentationFile>
   </PropertyGroup>
 
