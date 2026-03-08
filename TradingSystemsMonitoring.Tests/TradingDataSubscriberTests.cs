@@ -10,7 +10,7 @@ namespace TradingSystemsMonitoring.Tests
     public class TradingDataSubscriberTests
     {
         private IConfiguration _config;
-        private TradingDataSubscriber _subscriber;
+        private NetMqDataSubscriber _subscriber;
 
         [OneTimeSetUp]
         public void Setup()
@@ -23,7 +23,7 @@ namespace TradingSystemsMonitoring.Tests
         {
             const int packetsCount = 1000;
             var counter = 0;
-            _subscriber = new TradingDataSubscriber(_config);
+            _subscriber = new NetMqDataSubscriber(_config);
             _subscriber.OnDataReceived += _ => counter++;
             _subscriber.Subscribe(CancellationToken.None);
             Thread.Sleep(1);

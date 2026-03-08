@@ -11,13 +11,13 @@ namespace TradingSystemsMonitoring.RestAPI.Services.TradingData
     /// <summary>
     /// Стример торговых данных торговой системы на UI клиент.
     /// </summary>
-    public class TradingDataStreamer : BackgroundService
+    public class TradingLiveDataStreamer : BackgroundService
     {
         private ITradingDataSubscriber _tradingDataSubscriber;
         private IHubContext<TradingDataMonitoringHub> _tradingDataMonitoringHub;
-        private ILogger<TradingDataSubscriber> _logger;
+        private ILogger<NetMqDataSubscriber> _logger;
 
-        public TradingDataStreamer(ILogger<TradingDataSubscriber> logger,
+        public TradingLiveDataStreamer(ILogger<NetMqDataSubscriber> logger,
             ITradingDataSubscriber tradingDataSubscriber,
             IHubContext<TradingDataMonitoringHub> tradingDataMonitoringHub)
         {

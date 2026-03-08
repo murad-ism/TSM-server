@@ -1,10 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TradingSystemsMonitoring.Data.Repos;
 using TradingSystemsMonitoring.Data.Services.DTO;
 using TradingSystemsMonitoring.DataModel.DbContext;
+using TradingSystemsMonitoring.DataModel.Entities.Kafka;
 using TradingSystemsMonitoring.DataModel.Entities.Trading;
 
 namespace TradingSystemsMonitoring.Data.Services
@@ -83,6 +86,31 @@ namespace TradingSystemsMonitoring.Data.Services
                 var repo = new AccountClosedTradesRepo(dbContext);
                 return await repo.GetSystemIds();
             }
+        }
+
+        public async Task<List<AccountClosedTradeDTO>> GetCurrentTradesAsync()
+        {
+            var redis = ConnectionMultiplexer.Connect("localhost:6379");
+            var db = redis.GetDatabase();
+            var result = new List<AccountClosedTradeDTO>();
+
+            // Получаем все trade IDs из индексного SET
+            var tradeIds = await db.SetMembersAsync("trades:index");
+
+            foreach (var id in tradeIds)
+            {
+                var tradeKey = $"trade:{id}";
+                var json = await db.StringGetAsync(tradeKey);
+
+                if (json.IsNullOrEmpty)
+                    continue;
+
+                var trade = JsonConvert.DeserializeObject<TradeDealResult>(json!);
+                if (trade != null)
+                    result.Add(AccountClosedTradeDTO.MapFromDeal(trade));
+            }
+
+            return result;
         }
     }
 }

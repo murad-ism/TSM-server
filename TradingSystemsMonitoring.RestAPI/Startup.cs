@@ -1,7 +1,4 @@
-using System;
-using System.IO;
-using System.Reflection;
-using System.Text;
+using Confluent.Kafka;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -14,6 +11,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using StackExchange.Redis;
+using System;
+using System.IO;
+using System.Reflection;
+using System.Text;
 using TradingSystemsMonitoring.DataModel.DbContext;
 using TradingSystemsMonitoring.DataModel.DbContext.Factories;
 using TradingSystemsMonitoring.DataModel.DbContext.Settings;
@@ -59,9 +61,40 @@ namespace TradingSystemsMonitoring.RestAPI
             });
 
             services.AddSignalR();
-            services.AddSingleton<ITradingDataSubscriber, TradingDataSubscriber>();
-            services.AddHostedService<TradingDataStreamer>();
+            services.AddSingleton<ITradingDataSubscriber, NetMqDataSubscriber>();
+            services.AddHostedService<TradingLiveDataStreamer>();
             services.AddSingleton<TsmExceptionHandler>();
+
+            services.AddSingleton(sp =>
+            {
+                var consumerConfig = new ConsumerConfig
+                {
+                    BootstrapServers = "localhost:9092",
+                    GroupId = "trade-consumer-group",
+                    AutoOffsetReset = AutoOffsetReset.Earliest,
+                    EnableAutoCommit = false
+                };
+
+                var producerConfig = new ProducerConfig
+                {
+                    BootstrapServers = "localhost:9092"
+                };
+
+                var redis = ConnectionMultiplexer.Connect("localhost:6379");
+
+                return new KafkaTradeConsumer(
+                    consumerConfig,
+                    producerConfig,
+                    redis,
+                    topic: "trade-deals-topic",
+                    dlqTopic: "trade-deals-dlq",
+                    workerCount: 4,
+                    queueCapacity: 10000);
+            });
+
+            services.AddHostedService<KafkaConsumerHostedService>();
+
+
 
             services.AddCors(options => options.AddPolicy("CorsPolicy",
                 builder =>

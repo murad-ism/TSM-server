@@ -152,5 +152,24 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
             var securities = await SecurityService.GetSecurities();
             return Ok(securities);
         }
+
+
+        /// <summary>
+        /// Get completed trades by params.
+        /// </summary>
+        /// <param name="tradesParams"><see cref="TradesParams">Trade params.</see></param>
+        /// <returns>Trades collection of type <see cref="AccountClosedTradeDTO"/>.</returns>
+        [AllowAnonymous]
+        [HttpGet("Trades/Current")]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(AccountClosedTradeDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<AccountClosedTradeDTO>> GetCurrentTrades()
+        {
+            var trades = await AccountClosedTradesService.GetCurrentTradesAsync();
+            return Ok(trades);
+        }
     }
 }

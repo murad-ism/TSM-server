@@ -14,11 +14,11 @@ namespace TradingSystemsMonitoring.RestAPI.Services.TrackingDataReceiver
         public Task Subscribe(CancellationToken token);
     }
 
-    public class TradingDataSubscriber : ITradingDataSubscriber
+    public class NetMqDataSubscriber : ITradingDataSubscriber
     {
         private IConfiguration _config;
         public event Action<string> OnDataReceived;
-        public TradingDataSubscriber(IConfiguration config)
+        public NetMqDataSubscriber(IConfiguration config)
         {
             _config = config;
         }

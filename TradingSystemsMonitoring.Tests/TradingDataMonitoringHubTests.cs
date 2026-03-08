@@ -11,7 +11,7 @@ namespace TradingSystemsMonitoring.Tests
         private Mock<IHubContext<TradingDataMonitoringHub>> _hubContextMock;
         private Mock<IHubClients> _clientsMock;
         private Mock<IClientProxy> _clientProxyMock;
-        private TradingDataStreamer _service;
+        private TradingLiveDataStreamer _service;
 
         [OneTimeSetUp]
         public void Setup()
@@ -22,7 +22,7 @@ namespace TradingSystemsMonitoring.Tests
 
             _hubContextMock.Setup(h => h.Clients).Returns(_clientsMock.Object);
             _clientsMock.Setup(c => c.All).Returns(_clientProxyMock.Object);
-            _service = new TradingDataStreamer(null, null, _hubContextMock.Object);
+            _service = new TradingLiveDataStreamer(null, null, _hubContextMock.Object);
         }
 
         [Test]
