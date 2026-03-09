@@ -3,9 +3,8 @@ using Microsoft.Extensions.Configuration;
 
 namespace TradingSystemsMonitoring.DataModel.DbContext.Settings
 {
-    public class TsmUsersDbSettings
+    public class RedisDbSettings
     {
-        public const string ConnectionStringName = "UsersDbConnection";
         public static string ConnectionString { get; private set; }
 
         public static void ReadConfiguration(IConfiguration configuration)
@@ -15,13 +14,7 @@ namespace TradingSystemsMonitoring.DataModel.DbContext.Settings
                 throw new ArgumentNullException(nameof(configuration));
             }
 
-            var connectionString = configuration.GetConnectionString(ConnectionStringName);
-            if (string.IsNullOrEmpty(connectionString))
-            {
-                throw new InvalidOperationException($"{ConnectionStringName} is empty in configuration file!");
-            }
-
-            ConnectionString = connectionString;
+            ConnectionString = configuration["Redis:ConnectionString"] ?? "localhost:6379";
         }
     }
 }

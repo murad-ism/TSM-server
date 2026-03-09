@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using NetMQ;
 using NetMQ.Sockets;
-using TradingSystemsMonitoring.RestAPI.Services.TrackingDataReceiver;
+using TradingSystemsMonitoring.RestAPI.Services.TradingData;
 using TradingSystemsMonitoring.Tests.Helpers;
 
 namespace TradingSystemsMonitoring.Tests

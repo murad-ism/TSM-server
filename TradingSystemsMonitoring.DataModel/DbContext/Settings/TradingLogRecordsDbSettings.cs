@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
 
@@ -6,7 +6,7 @@ namespace TradingSystemsMonitoring.DataModel.DbContext.Settings
 {
     public class TradingLogRecordsDbSettings
     {
-        private const string _connectionStringName = "TradingLogRecordsDbConection";
+        private const string _connectionStringName = "TradingLogRecordsDbConnection";
 
         public static MongoUrl Url { get; private set; }
         public static string Host { get; private set; }

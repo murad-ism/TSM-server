@@ -1,10 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TradingSystemsMonitoring.Data.Repos;
+using TradingSystemsMonitoring.Data.Abstractions;
 using TradingSystemsMonitoring.Data.Services.DTO;
 using TradingSystemsMonitoring.DataModel.DbContext;
 using TradingSystemsMonitoring.DataModel.Entities.Kafka;
@@ -15,12 +16,15 @@ namespace TradingSystemsMonitoring.Data.Services
     /// <summary>
     /// Сервис для работы с совершенными сделками торговой системы.
     /// </summary>
-    public class AccountClosedTradesService
+    public class AccountClosedTradesService : IAccountClosedTradesService
     {
-        private IDbContextFactory<TradingDataDbContext> _tradingDataDbContextFactory;
-        public AccountClosedTradesService(IDbContextFactory<TradingDataDbContext> factory)
+        private readonly IDbContextFactory<TradingDataDbContext> _tradingDataDbContextFactory;
+        private readonly IConnectionMultiplexer _redis;
+
+        public AccountClosedTradesService(IDbContextFactory<TradingDataDbContext> factory, IConnectionMultiplexer redis)
         {
             _tradingDataDbContextFactory = factory;
+            _redis = redis;
         }
 
         /// <summary>
@@ -90,8 +94,7 @@ namespace TradingSystemsMonitoring.Data.Services
 
         public async Task<List<AccountClosedTradeDTO>> GetCurrentTradesAsync()
         {
-            var redis = ConnectionMultiplexer.Connect("localhost:6379");
-            var db = redis.GetDatabase();
+            var db = _redis.GetDatabase();
             var result = new List<AccountClosedTradeDTO>();
 
             // Получаем все trade IDs из индексного SET

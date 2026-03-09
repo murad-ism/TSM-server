@@ -1,4 +1,3 @@
-using Confluent.Kafka;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -16,14 +15,18 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using TradingSystemsMonitoring.Data.Abstractions;
+using TradingSystemsMonitoring.Data.Services;
 using TradingSystemsMonitoring.DataModel.DbContext;
 using TradingSystemsMonitoring.DataModel.DbContext.Factories;
 using TradingSystemsMonitoring.DataModel.DbContext.Settings;
 using TradingSystemsMonitoring.DataModel.Entities.Identity;
+using TradingSystemsMonitoring.RestAPI.Settings;
+using TradingSystemsMonitoring.RestAPI.Abstractions;
+using TradingSystemsMonitoring.RestAPI.Abstractions.Identity;
 using TradingSystemsMonitoring.RestAPI.Hubs;
 using TradingSystemsMonitoring.RestAPI.Services.Handlers;
 using TradingSystemsMonitoring.RestAPI.Services.Identity;
-using TradingSystemsMonitoring.RestAPI.Services.TrackingDataReceiver;
 using TradingSystemsMonitoring.RestAPI.Services.TradingData;
 
 
@@ -46,15 +49,19 @@ namespace TradingSystemsMonitoring.RestAPI
             TradingDataDbSettings.ReadConfiguration(Configuration);
             TsmUsersDbSettings.ReadConfiguration(Configuration);
             TradingLogRecordsDbSettings.ReadConfiguration(Configuration);
+            RedisDbSettings.ReadConfiguration(Configuration);
+            KafkaSettings.ReadConfiguration(Configuration);
 
             services.AddScoped<IDbContextFactory<TradingDataDbContext>, TradingDataDbContextFactory>();
             services.AddScoped<ITradingLogRecordDbFactory, TradingLogRecordDbFactory>();
+            services.AddScoped<IAccountClosedTradesService, AccountClosedTradesService>();
+            services.AddScoped<ISecurityService, SecurityService>();
+            services.AddScoped<ITradingLogsExplorerService, TradingLogsExplorerService>();
 
             ConfigureIdentity(services);
             services.AddControllers(option =>
             {
-                // Отключаем маршрутизацию конечных точек на основе endpoint-based logic из EndpointMiddleware
-                // и продолжаем использование маршрутизации на основе IRouter. 
+                // Use IRouter-based routing instead of endpoint-based routing.
                 option.EnableEndpointRouting = false;
                 var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
                 option.Filters.Add(new AuthorizeFilter(policy));
@@ -65,37 +72,17 @@ namespace TradingSystemsMonitoring.RestAPI
             services.AddHostedService<TradingLiveDataStreamer>();
             services.AddSingleton<TsmExceptionHandler>();
 
+            services.AddSingleton<IConnectionMultiplexer>(_ =>
+                ConnectionMultiplexer.Connect(RedisDbSettings.ConnectionString));
+
             services.AddSingleton(sp =>
             {
-                var consumerConfig = new ConsumerConfig
-                {
-                    BootstrapServers = "localhost:9092",
-                    GroupId = "trade-consumer-group",
-                    AutoOffsetReset = AutoOffsetReset.Earliest,
-                    EnableAutoCommit = false
-                };
-
-                var producerConfig = new ProducerConfig
-                {
-                    BootstrapServers = "localhost:9092"
-                };
-
-                var redis = ConnectionMultiplexer.Connect("localhost:6379");
-
-                return new KafkaTradeConsumer(
-                    consumerConfig,
-                    producerConfig,
-                    redis,
-                    topic: "trade-deals-topic",
-                    dlqTopic: "trade-deals-dlq",
-                    workerCount: 4,
-                    queueCapacity: 10000);
+                var redis = sp.GetRequiredService<IConnectionMultiplexer>();
+                return new KafkaTradeConsumer(KafkaSettings.Instance, redis);
             });
 
             services.AddHostedService<KafkaConsumerHostedService>();
-
-
-
+            
             services.AddCors(options => options.AddPolicy("CorsPolicy",
                 builder =>
                 {
@@ -119,12 +106,14 @@ namespace TradingSystemsMonitoring.RestAPI
         {
             var builder = services.AddIdentityCore<TsmUser>();
             var identityBuilder = new IdentityBuilder(builder.UserType, builder.Services);
-            services.AddScoped(_ => new TsmUsersDbContextFactory().CreateDbContext());
+            services.AddSingleton<IDbContextFactory<TsmUsersDbContext>, TsmUsersDbContextFactory>();
+            services.AddScoped<TsmUsersDbContext>(sp => sp.GetRequiredService<IDbContextFactory<TsmUsersDbContext>>().CreateDbContext());
 
             identityBuilder.AddRoles<TsmRole>();
             identityBuilder.AddEntityFrameworkStores<TsmUsersDbContext>();
             identityBuilder.AddSignInManager<SignInManager<TsmUser>>();
             services.AddScoped<IJwtGenerator, JwtGenerator>();
+            services.AddScoped<ITsmUsersService, TsmUsersService>();
             
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Identity:TokenKey"]));
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

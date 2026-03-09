@@ -1,36 +1,59 @@
 # Trading Systems Monitoring
 
-**Trading Systems Monitoring** — система мониторинга торговых систем, работающих на финансовых рынках. Решение представляет REST API для получения и управления данными о состоянии торговых систем, а также включает инфраструктуру для работы с данными и тестирования.
+**Trading Systems Monitoring** is a monitoring system for trading systems operating on financial markets. The solution provides a REST API for retrieving and managing trading system state data, and includes infrastructure for data access and testing.
 
 ---
 
-## 🧱 Структура решения
+## Quick start
 
-Проект состоит из пяти основных компонентов:
+REST API for monitoring trading systems. Run the API project, or use Docker (see below).
+
+### Configuration
+
+Required settings in `appsettings.json` (or environment / User Secrets in production):
+
+| Section | Key | Description |
+|--------|-----|-------------|
+| **ConnectionStrings** | TradingDataDbConnection | SQL Server connection for trading data |
+| **ConnectionStrings** | UsersDbConnection | PostgreSQL connection for Identity (users/roles) |
+| **ConnectionStrings** | TradingLogRecordsDbConnection | MongoDB connection for log records |
+| **Identity** | TokenKey | JWT signing key (keep secret) |
+| **Identity** | AdminInitialPassword | Initial admin password when seeding (required only for seed) |
+| **Kafka** | BootstrapServers | Kafka brokers (e.g. `localhost:9092`) |
+| **Redis** | ConnectionString | Redis connection (e.g. `localhost:6379`) |
+| **MsgQueueSubscriber** | Url, Channel | NetMQ subscriber URL and channel for live data |
+
+Optional overrides: `Kafka:Topic`, `Kafka:DlqTopic`, `Kafka:GroupId`, `Kafka:WorkerCount`, `Kafka:QueueCapacity`.
+
+---
+
+## Solution structure
+
+The project consists of five main components:
 
 - **TradingSystemsMonitoring.RestAPI**  
-  Стартовый проект. REST API для мониторинга состояния торговых систем. Используется для взаимодействия с клиентскими приложениями или внешними сервисами.
+  Startup project. REST API for monitoring trading system state. Used for communication with client applications or external services.
 
 - **TradingSystemsMonitoring.DataModel**  
-  Модели данных, используемые в системе. Содержит определения сущностей и DTO.
+  Data models used by the system. Contains entity and DTO definitions.
 
 - **TradingSystemsMonitoring.Data**  
-  Реализация репозиториев и логики доступа к данным. Работает с базой данных и инкапсулирует детали хранения информации.
+  Repository implementations and data access logic. Works with the database and encapsulates storage details.
 
 - **TradingSystemsMonitoring.Tests**  
-  Модульные тесты для компонентов системы. Охватывают бизнес-логику и модели.
+  Unit tests for system components. Covers business logic and models.
 
 - **TradingSystemsMonitoring.ApiTests**  
-  Интеграционные тесты REST API. Используются для проверки корректности взаимодействия компонентов через HTTP.
+  REST API integration tests. Used to verify correct interaction between components over HTTP.
 
 ---
 
-## 🚀 Быстрый старт с Docker
+## Docker quick start
 
-В корне репозитория находятся скрипты для запуска и остановки системы в контейнерах:
+Scripts in the repository root run and stop the system in containers:
 
-- `docker-start.cmd`  
-  Запускает необходимые контейнеры, поднимает REST API и прогоняет все тесты (юнит- и интеграционные).
+- **`docker-start.cmd`**  
+  Starts the required containers, runs the REST API, and executes all tests (unit and integration).
 
-- `docker-stop.cmd`  
-  Останавливает и выгружает все контейнеры, завершает работу REST API.
+- **`docker-stop.cmd`**  
+  Stops and removes all containers and shuts down the REST API.

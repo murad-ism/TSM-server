@@ -3,10 +3,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using TradingSystemsMonitoring.DataModel.Entities.Identity;
+using TradingSystemsMonitoring.RestAPI.Abstractions.Identity;
 
 namespace TradingSystemsMonitoring.RestAPI.Services.Identity
 {
-    public class TsmUsersService
+    public class TsmUsersService : ITsmUsersService
     {
         private readonly UserManager<TsmUser> _userManager;
         private readonly SignInManager<TsmUser> _signInManager;
@@ -93,42 +94,10 @@ namespace TradingSystemsMonitoring.RestAPI.Services.Identity
                     .Select(x => $"{x.Code}.{x.Description}").ToArray());
             }
         }
-        
+
         public async Task Logout()
         {
             await _signInManager.SignOutAsync();
-        }
-    }
-
-    public class TsmUserLoginData
-    {
-        public string Username { get; set; }
-        public string Email { get; set; }
-        public string Password { get; set; }
-    }
-
-    public class TsmUserToken
-    {
-        public string UserName { get; set; }
-        public string Token { get; set; }
-    }
-
-    public class TsmUserRegisterData
-    {
-        public string UserName { get; set; }
-        public string Email { get; set; }
-        public string Password { get; set; }
-    }
-
-    public class OperationResult
-    {
-        public bool IsSucceeded { get; }
-        public string[] Errors { get; }
-
-        public OperationResult(bool isSucceeded, string[] errors)
-        {
-            IsSucceeded = isSucceeded;
-            Errors = errors;
         }
     }
 }

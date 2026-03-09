@@ -1,10 +1,10 @@
-﻿using System.Threading;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using TradingSystemsMonitoring.RestAPI.Abstractions;
 using TradingSystemsMonitoring.RestAPI.Hubs;
-using TradingSystemsMonitoring.RestAPI.Services.TrackingDataReceiver;
 
 namespace TradingSystemsMonitoring.RestAPI.Services.TradingData
 {
@@ -41,7 +41,12 @@ namespace TradingSystemsMonitoring.RestAPI.Services.TradingData
 
         public void TradingDataSubscriberDataReceived(string obj)
         {
-            _tradingDataMonitoringHub.NotifyAllClients(obj);
+            _ = _tradingDataMonitoringHub.NotifyAllClients(obj)
+                .ContinueWith(t =>
+                {
+                    if (t.IsFaulted && t.Exception != null)
+                        _logger.LogError(t.Exception, "Failed to push trading data to SignalR clients");
+                }, TaskContinuationOptions.OnlyOnFaulted);
         }
     }
 }

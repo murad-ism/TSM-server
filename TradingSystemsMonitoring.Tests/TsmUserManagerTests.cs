@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using TradingSystemsMonitoring.DataModel.DbContext;
 using TradingSystemsMonitoring.DataModel.Entities.Identity;
+using TradingSystemsMonitoring.RestAPI.Abstractions.Identity;
 using TradingSystemsMonitoring.RestAPI.Services.Identity;
 using TradingSystemsMonitoring.Tests.Seeders;
 using System.Text;

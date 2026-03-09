@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Driver;
+using TradingSystemsMonitoring.Data.Abstractions;
 using TradingSystemsMonitoring.Data.Repos;
 using TradingSystemsMonitoring.Data.Services.DTO;
 using TradingSystemsMonitoring.DataModel.DbContext.Factories;
@@ -13,7 +14,7 @@ namespace TradingSystemsMonitoring.Data.Services
     /// <summary>
     /// Сервис для работы с лог записями торговой системы.
     /// </summary>
-    public class TradingLogsExplorerService
+    public class TradingLogsExplorerService : ITradingLogsExplorerService
     {
         private ITradingLogRecordDbFactory _tradingLogRecordDbFactory;
         public TradingLogsExplorerService(ITradingLogRecordDbFactory tradingLogRecordDbFactory)

@@ -1,19 +1,13 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Protocols.Configuration;
 using NetMQ;
 using NetMQ.Sockets;
+using TradingSystemsMonitoring.RestAPI.Abstractions;
 
-namespace TradingSystemsMonitoring.RestAPI.Services.TrackingDataReceiver
+namespace TradingSystemsMonitoring.RestAPI.Services.TradingData
 {
-    public interface ITradingDataSubscriber
-    {
-        public event Action<string> OnDataReceived;
-        public Task Subscribe(CancellationToken token);
-    }
-
     public class NetMqDataSubscriber : ITradingDataSubscriber
     {
         private IConfiguration _config;
@@ -24,28 +18,26 @@ namespace TradingSystemsMonitoring.RestAPI.Services.TrackingDataReceiver
         }
 
         /// <summary>
-        /// 
+        /// Subscribes to the message queue and receives messages until cancellation is requested.
         /// </summary>
-        /// <param name="token"></param>
-        /// <returns></returns>
         public async Task Subscribe(CancellationToken token)
         {
-            await Task.Run(ReceiveData, token);
+            await Task.Run(() => ReceiveData(token), token);
         }
-        
-        private void ReceiveData()
+
+        private void ReceiveData(CancellationToken token)
         {
             var url = _config["MsgQueueSubscriber:Url"];
             var channel = _config["MsgQueueSubscriber:Channel"];
 
             if (string.IsNullOrEmpty(url))
             {
-                throw new InvalidConfigurationException("Param 'MsgQueueSubscriber:Url' is null");
+                throw new InvalidOperationException("Param 'MsgQueueSubscriber:Url' is null or empty in configuration.");
             }
 
             if (string.IsNullOrEmpty(channel))
             {
-                throw new InvalidConfigurationException("Param 'MsgQueueSubscriber:Channel' is null");
+                throw new InvalidOperationException("Param 'MsgQueueSubscriber:Channel' is null or empty in configuration.");
             }
 
             using (var subscriber = new SubscriberSocket())
@@ -55,28 +47,22 @@ namespace TradingSystemsMonitoring.RestAPI.Services.TrackingDataReceiver
 
                 if (OnDataReceived != null)
                 {
-                    while (true)
+                    var timeout = TimeSpan.FromMilliseconds(500);
+                    while (!token.IsCancellationRequested)
                     {
-                        var topic = subscriber.ReceiveFrameString();
-                        var msg = subscriber.ReceiveFrameString();
-                        OnDataReceived(msg);
+                        try
+                        {
+                            if (subscriber.TryReceiveFrameString(timeout, out _) && subscriber.TryReceiveFrameString(timeout, out string msg))
+                            {
+                                OnDataReceived(msg);
+                            }
+                        }
+                        catch (Exception) when (token.IsCancellationRequested)
+                        {
+                            break;
+                        }
                     }
                 }
-
-                //if (OnDataReceived != null)
-                //{
-                //    using (var poller = new NetMQPoller { subscriber })
-                //    {
-                //        subscriber.ReceiveReady += (s, e) =>
-                //        {
-                //            string message = e.Socket.ReceiveFrameString();
-                //            OnDataReceived(message);
-                //        };
-
-                //        poller.Run(); // Starts the event-driven loop
-                //    }
-                //}
-
             }
         }
     }

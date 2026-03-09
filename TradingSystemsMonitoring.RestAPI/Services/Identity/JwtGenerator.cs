@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -6,14 +6,10 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using TradingSystemsMonitoring.DataModel.Entities.Identity;
+using TradingSystemsMonitoring.RestAPI.Abstractions.Identity;
 
 namespace TradingSystemsMonitoring.RestAPI.Services.Identity
 {
-    public interface IJwtGenerator
-    {
-        string CreateToken(TsmUser user, string[] userRoles);
-    }
-
     public class JwtGenerator : IJwtGenerator
     {
         private readonly SymmetricSecurityKey _key;

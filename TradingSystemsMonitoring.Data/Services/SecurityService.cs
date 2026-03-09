@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
+using TradingSystemsMonitoring.Data.Abstractions;
 using TradingSystemsMonitoring.Data.Repos;
 using TradingSystemsMonitoring.DataModel.DbContext;
 using TradingSystemsMonitoring.DataModel.Entities.Trading;
@@ -9,7 +10,7 @@ namespace TradingSystemsMonitoring.Data.Services
     /// <summary>
     /// Сервис для работы с торговыми инструментами.
     /// </summary>
-    public class SecurityService
+    public class SecurityService : ISecurityService
     {
         private IDbContextFactory<TradingDataDbContext> _tradingDataDbContextFactory;
         public SecurityService(IDbContextFactory<TradingDataDbContext> factory)

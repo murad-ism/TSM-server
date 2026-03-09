@@ -4,11 +4,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using TradingSystemsMonitoring.Data.Abstractions;
 using TradingSystemsMonitoring.Data.Services.DTO;
-using TradingSystemsMonitoring.DataModel.DbContext;
-using TradingSystemsMonitoring.DataModel.DbContext.Factories;
 using TradingSystemsMonitoring.DataModel.Entities.Trading;
 using TradingSystemsMonitoring.RestAPI.Controllers.Base;
 
@@ -18,8 +16,12 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
     [Route("api/[controller]")]
     public class TradingDataController : TsmController
     {
-        public TradingDataController(ILogger<TradingDataController> logger, 
-            IDbContextFactory<TradingDataDbContext> tradingDbFac, ITradingLogRecordDbFactory tradingLogsDbFac) : base(logger, tradingDbFac, tradingLogsDbFac)
+        public TradingDataController(
+            ILogger<TradingDataController> logger,
+            IAccountClosedTradesService accountClosedTradesService,
+            ISecurityService securityService,
+            ITradingLogsExplorerService tradingLogsExplorerService)
+            : base(logger, accountClosedTradesService, securityService, tradingLogsExplorerService)
         {
         }
 
@@ -44,11 +46,11 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         [AllowAnonymous]
         [HttpPost("Trades")]
         [Produces("application/json")]
-        [ProducesResponseType(typeof(AccountClosedTradeDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IEnumerable<AccountClosedTradeDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<AccountClosedTradeDTO>> GetTrades([FromBody] TradesParams tradesParams)
+        public async Task<ActionResult<IEnumerable<AccountClosedTradeDTO>>> GetTrades([FromBody] TradesParams tradesParams)
         {
             if (tradesParams == null)
                 return BadRequest("Request body is required.");
@@ -95,7 +97,7 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         [AllowAnonymous]
         [HttpPost("LogRecords")]
         [Produces("application/json")]
-        [ProducesResponseType(typeof(TradingLogRecordDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IEnumerable<TradingLogRecordDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -168,11 +170,11 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         [AllowAnonymous]
         [HttpGet("Trades/Current")]
         [Produces("application/json")]
-        [ProducesResponseType(typeof(AccountClosedTradeDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IEnumerable<AccountClosedTradeDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<AccountClosedTradeDTO>> GetCurrentTrades()
+        public async Task<ActionResult<IEnumerable<AccountClosedTradeDTO>>> GetCurrentTrades()
         {
             var trades = await AccountClosedTradesService.GetCurrentTradesAsync();
             return Ok(trades);
