@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -50,6 +50,8 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<AccountClosedTradeDTO>> GetTrades([FromBody] TradesParams tradesParams)
         {
+            if (tradesParams == null)
+                return BadRequest("Request body is required.");
             var trades = await AccountClosedTradesService.SearchByParams(
                 tradesParams.SystemId, tradesParams.SecurityId, tradesParams.DateFrom, tradesParams.DateTo,
                 tradesParams.PageIndex, tradesParams.PageSize);
@@ -70,6 +72,8 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<int>> GetTradesCount([FromBody] TradesParams tradesParams)
         {
+            if (tradesParams == null)
+                return BadRequest("Request body is required.");
             var trades = await AccountClosedTradesService.CountByParams(
                 tradesParams.SystemId, tradesParams.SecurityId, tradesParams.DateFrom, tradesParams.DateTo);
             return Ok(trades);
@@ -97,6 +101,8 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<TradingLogRecordDTO>>> GetLogRecords([FromBody] TradingLogRecordParams logParams)
         {
+            if (logParams == null)
+                return BadRequest("Request body is required.");
             var logRecords = await TradingLogRecordDbService.GetRecordsByDate(
                 logParams.SystemId, logParams.Date);
             return Ok(logRecords);

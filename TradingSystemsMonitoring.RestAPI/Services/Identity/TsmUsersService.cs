@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
@@ -122,12 +122,12 @@ namespace TradingSystemsMonitoring.RestAPI.Services.Identity
 
     public class OperationResult
     {
-        public bool IsSucceded { get; }
+        public bool IsSucceeded { get; }
         public string[] Errors { get; }
 
-        public OperationResult(bool isSucceded, string[] errors)
+        public OperationResult(bool isSucceeded, string[] errors)
         {
-            IsSucceded = isSucceded;
+            IsSucceeded = isSucceeded;
             Errors = errors;
         }
     }

@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Diagnostics;
@@ -39,7 +39,7 @@ namespace TradingSystemsMonitoring.RestAPI.Services.Handlers
                 detail: includeExDetails ? ex?.ToString() : null, 
                 instance: context.Request.GetDisplayUrl());
 
-            _logger.LogError(ex, "Exception has been throwed");
+            _logger.LogError(ex, "Exception has been thrown");
             var stream = context.Response.Body;
 
             await JsonSerializer.SerializeAsync(stream, details);

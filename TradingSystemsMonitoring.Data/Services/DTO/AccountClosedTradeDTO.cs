@@ -1,4 +1,4 @@
-﻿using TradingSystemsMonitoring.DataModel.Entities.Kafka;
+using TradingSystemsMonitoring.DataModel.Entities.Kafka;
 using TradingSystemsMonitoring.DataModel.Entities.Trading;
 
 namespace TradingSystemsMonitoring.Data.Services.DTO
@@ -73,7 +73,7 @@ namespace TradingSystemsMonitoring.Data.Services.DTO
                 SystemId = trade.SystemId,
                 OpeningDate = $"{trade.OpeningDate:dd.MM.yyyy}",
                 ClosingDate = $"{trade.ClosingDate:dd.MM.yyyy}",
-                Security = trade.Security.Ticker,
+                Security = trade.Security?.Ticker,
                 AccountId = trade.AccountId,
                 ClosingPrice = trade.ClosingPrice,
                 OpeningPrice = trade.OpeningPrice,
@@ -92,9 +92,9 @@ namespace TradingSystemsMonitoring.Data.Services.DTO
             {
                 Id = long.Parse(trade.Id),
                 SystemId = trade.System,
-                OpeningDate = $"{trade.OpenPrice:dd.MM.yyyy}",
-                ClosingDate = $"{trade.CloseDateTime:dd.MM.yyyy}",
-                Security = trade.Security.Ticker,
+                OpeningDate = $"{trade.OpenDateTime:dd.MM.yyyy}",
+                ClosingDate = trade.CloseDateTime.HasValue ? $"{trade.CloseDateTime.Value:dd.MM.yyyy}" : null,
+                Security = trade.Security?.Ticker,
                 AccountId = trade.Account,
                 ClosingPrice = trade.ClosePrice,
                 OpeningPrice = trade.OpenPrice,

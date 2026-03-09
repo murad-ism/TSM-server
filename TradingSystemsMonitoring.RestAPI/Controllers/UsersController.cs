@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -48,7 +47,10 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<TsmUserToken>> LoginAsync(TsmUserLoginData loginData, CancellationToken token)
         {
-            return await new TsmUsersService(_userManager, _signInManager, _jwtGenerator).Login(loginData, token);
+            var result = await new TsmUsersService(_userManager, _signInManager, _jwtGenerator).Login(loginData, token);
+            if (result == null)
+                return Unauthorized();
+            return Ok(result);
         }
         
         /// <summary>
@@ -69,10 +71,10 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
                 await new TsmUsersService(_userManager, _signInManager, _jwtGenerator).Logout();
                 return Ok();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                _logger.LogError(e.ToString());
-                return BadRequest(HttpStatusCode.InternalServerError);
+                _logger.LogError(e, "Logout failed");
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
         

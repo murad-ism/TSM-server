@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using TradingSystemsMonitoring.DataModel.DbContext;
 using TradingSystemsMonitoring.DataModel.Entities.Identity;
@@ -121,7 +121,7 @@ namespace TradingSystemsMonitoring.Tests
 
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Errors, null);
-            Assert.AreEqual(result.IsSucceded, true);
+            Assert.AreEqual(result.IsSucceeded, true);
 
             var userCountAfterAdd = _tsmUserManager.Users.Count();
             Assert.AreEqual(userCountBeforeAdd + 1, userCountAfterAdd);
@@ -137,7 +137,7 @@ namespace TradingSystemsMonitoring.Tests
 
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Errors, null);
-            Assert.AreEqual(result.IsSucceded, true);
+            Assert.AreEqual(result.IsSucceeded, true);
 
             var userCountAfterDelete = _tsmUserManager.Users.Count();
             Assert.AreEqual(userCountBeforeDelete - 1, userCountAfterDelete);

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -29,7 +30,9 @@ namespace TradingSystemsMonitoring.DataModel.DbContext.Seed
                 {
                     UserName = "admin"
                 };
-                await userManager.CreateAsync(adminUser, configuration["Identity:TokenKey"]);
+                var adminPassword = configuration["Identity:AdminInitialPassword"]
+                    ?? throw new InvalidOperationException("Identity:AdminInitialPassword is required for seeding.");
+                await userManager.CreateAsync(adminUser, adminPassword);
                 await userManager.AddToRoleAsync(adminUser, adminRole.Name);
             }
         }

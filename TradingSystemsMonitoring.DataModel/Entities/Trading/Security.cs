@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 using TradingSystemsMonitoring.DataModel.Entities.Base;
 
 namespace TradingSystemsMonitoring.DataModel.Entities.Trading
@@ -51,7 +52,9 @@ namespace TradingSystemsMonitoring.DataModel.Entities.Trading
 
         public int GetHashCode(Security obj)
         {
-            return obj.Ticker.GetHashCode() ^ obj.Class.GetHashCode() ^ obj.Exchange.GetHashCode();
+            if (obj == null)
+                return 0;
+            return HashCode.Combine(obj.Ticker, obj.Class, obj.Exchange);
         }
     }
 }

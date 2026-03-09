@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TradingSystemsMonitoring.DataModel.Entities.Identity;
@@ -50,7 +50,7 @@ namespace TradingSystemsMonitoring.DataModel.Mappings.Identity
         public void Configure(EntityTypeBuilder<IdentityUserLogin<string>> entity)
         {
             entity.ToTable("UserLogins");
-            entity.HasKey(key => new { key.ProviderKey, key.LoginProvider });
+            entity.HasKey(key => new { key.LoginProvider, key.ProviderKey });
         }
     }
 
