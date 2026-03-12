@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Moq;
 using NetMQ;
 using NetMQ.Sockets;
 using TradingSystemsMonitoring.RestAPI.Services.TradingData;
@@ -23,7 +25,8 @@ namespace TradingSystemsMonitoring.Tests
         {
             const int packetsCount = 1000;
             var counter = 0;
-            _subscriber = new NetMqDataSubscriber(_config);
+            var logger = new Mock<ILogger<NetMqDataSubscriber>>().Object;
+            _subscriber = new NetMqDataSubscriber(_config, logger);
             _subscriber.OnDataReceived += _ => counter++;
             _subscriber.Subscribe(CancellationToken.None);
             Thread.Sleep(1);

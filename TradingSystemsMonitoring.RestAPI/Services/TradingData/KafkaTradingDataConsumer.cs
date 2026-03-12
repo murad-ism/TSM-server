@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using Confluent.Kafka;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using StackExchange.Redis;
 using TradingSystemsMonitoring.DataModel.Entities.Kafka;
@@ -16,6 +17,7 @@ namespace TradingSystemsMonitoring.RestAPI.Services.TradingData
         private readonly IConsumer<string, string> _consumer;
         private readonly IProducer<string, string> _producer;
         private readonly IDatabase _redisDb;
+        private readonly ILogger<KafkaTradeConsumer> _logger;
         private readonly string _topic;
         private readonly string _dlqTopic;
 
@@ -26,11 +28,12 @@ namespace TradingSystemsMonitoring.RestAPI.Services.TradingData
         private readonly int _maxRetryCount = 3;
         private readonly int _retryDelayMs = 1000;
 
-        public KafkaTradeConsumer(KafkaSettings kafkaSettings, IConnectionMultiplexer redis)
+        public KafkaTradeConsumer(KafkaSettings kafkaSettings, IConnectionMultiplexer redis, ILogger<KafkaTradeConsumer> logger)
         {
             if (kafkaSettings == null)
                 throw new ArgumentNullException(nameof(kafkaSettings));
 
+            _logger = logger;
             _topic = kafkaSettings.Topic;
             _dlqTopic = kafkaSettings.DlqTopic;
             _redisDb = redis.GetDatabase();
@@ -57,24 +60,24 @@ namespace TradingSystemsMonitoring.RestAPI.Services.TradingData
 
         private void OnPartitionsAssigned(IConsumer<string, string> consumer, List<TopicPartition> partitions)
         {
-            Console.WriteLine($"[Rebalance] Partitions assigned: {string.Join(",", partitions)}");
+            _logger.LogInformation("Partitions assigned: {Partitions}", string.Join(",", partitions));
             foreach (var tp in partitions)
             {
-                Console.WriteLine($"Assigned partition {tp.Partition.Value} of topic {tp.Topic}");
+                _logger.LogDebug("Assigned partition {Partition} of topic {Topic}", tp.Partition.Value, tp.Topic);
             }
         }
 
         private void OnPartitionsRevoked(IConsumer<string, string> consumer, List<TopicPartitionOffset> partitions)
         {
-            Console.WriteLine($"[Rebalance] Partitions revoked: {string.Join(",", partitions)}");
+            _logger.LogInformation("Partitions revoked: {Partitions}", string.Join(",", partitions));
             try
             {
                 consumer.Commit();
-                Console.WriteLine("Offsets committed before partition revocation");
+                _logger.LogDebug("Offsets committed before partition revocation");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error committing offsets during rebalance: {ex.Message}");
+                _logger.LogError(ex, "Error committing offsets during rebalance");
             }
         }
 
@@ -96,7 +99,7 @@ namespace TradingSystemsMonitoring.RestAPI.Services.TradingData
                 catch (OperationCanceledException) { break; }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Consumer loop error: {ex.Message}");
+                    _logger.LogError(ex, "Consumer loop error");
                 }
             }
         }
@@ -138,7 +141,10 @@ namespace TradingSystemsMonitoring.RestAPI.Services.TradingData
                 {
                     attempt++;
                     if (attempt >= _maxRetryCount)
+                    {
+                        _logger.LogWarning(ex, "Message processing failed after {MaxRetries} attempts, sending to DLQ. Key={Key}", _maxRetryCount, result.Message.Key);
                         await SendToDlq(result, ex);
+                    }
                     else
                         await Task.Delay(_retryDelayMs, ct);
                 }
@@ -180,6 +186,7 @@ namespace TradingSystemsMonitoring.RestAPI.Services.TradingData
                     Key = result.Message.Key,
                     Value = JsonConvert.SerializeObject(dlqMessage)
                 });
+            _logger.LogWarning("Message sent to DLQ. Topic={DlqTopic}, Key={Key}, Error={Error}", _dlqTopic, result.Message.Key, ex.Message);
         }
 
         /// <inheritdoc/>

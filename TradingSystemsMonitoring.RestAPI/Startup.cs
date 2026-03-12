@@ -78,7 +78,8 @@ namespace TradingSystemsMonitoring.RestAPI
             services.AddSingleton(sp =>
             {
                 var redis = sp.GetRequiredService<IConnectionMultiplexer>();
-                return new KafkaTradeConsumer(KafkaSettings.Instance, redis);
+                var logger = sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<KafkaTradeConsumer>>();
+                return new KafkaTradeConsumer(KafkaSettings.Instance, redis, logger);
             });
 
             services.AddHostedService<KafkaConsumerHostedService>();
