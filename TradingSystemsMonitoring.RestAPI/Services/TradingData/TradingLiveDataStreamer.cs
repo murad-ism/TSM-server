@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using TradingSystemsMonitoring.RestAPI.Abstractions;
 using TradingSystemsMonitoring.RestAPI.Hubs;
+using TradingSystemsMonitoring.RestAPI.Metrics;
 
 namespace TradingSystemsMonitoring.RestAPI.Services.TradingData
 {
@@ -41,11 +42,15 @@ namespace TradingSystemsMonitoring.RestAPI.Services.TradingData
 
         public void TradingDataSubscriberDataReceived(string obj)
         {
+            TsmMetrics.SignalrMessagesSentTotal.Inc();
             _ = _tradingDataMonitoringHub.NotifyAllClients(obj)
                 .ContinueWith(t =>
                 {
                     if (t.IsFaulted && t.Exception != null)
+                    {
+                        TsmMetrics.SignalrMessagesSendErrorsTotal.Inc();
                         _logger.LogError(t.Exception, "Failed to push trading data to SignalR clients");
+                    }
                 }, TaskContinuationOptions.OnlyOnFaulted);
         }
     }

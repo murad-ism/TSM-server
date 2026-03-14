@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using StackExchange.Redis;
 using TradingSystemsMonitoring.DataModel.Entities.Kafka;
+using TradingSystemsMonitoring.RestAPI.Metrics;
 using TradingSystemsMonitoring.RestAPI.Settings;
 
 namespace TradingSystemsMonitoring.RestAPI.Services.TradingData
@@ -99,6 +101,7 @@ namespace TradingSystemsMonitoring.RestAPI.Services.TradingData
                 catch (OperationCanceledException) { break; }
                 catch (Exception ex)
                 {
+                    TsmMetrics.KafkaConsumerErrorsTotal.WithLabels(_topic, "consume").Inc();
                     _logger.LogError(ex, "Consumer loop error");
                 }
             }
@@ -113,7 +116,10 @@ namespace TradingSystemsMonitoring.RestAPI.Services.TradingData
                     await ProcessMessage(message, ct);
                     _consumer.Commit(message);
                 }
-                catch { /* Kafka retry */ }
+                catch (Exception)
+                {
+                    TsmMetrics.KafkaConsumerErrorsTotal.WithLabels(_topic, "process").Inc();
+                }
             }
         }
 
@@ -121,6 +127,7 @@ namespace TradingSystemsMonitoring.RestAPI.Services.TradingData
             ConsumeResult<string, string> result,
             CancellationToken ct)
         {
+            var stopwatch = Stopwatch.StartNew();
             int attempt = 0;
 
             while (attempt < _maxRetryCount)
@@ -133,8 +140,14 @@ namespace TradingSystemsMonitoring.RestAPI.Services.TradingData
                     var saved = await SaveTrade(trade);
 
                     if (!saved)
+                    {
+                        TsmMetrics.KafkaMessagesProcessedTotal.WithLabels(_topic, "duplicate").Inc();
+                        TsmMetrics.KafkaProcessingDurationSeconds.WithLabels(_topic).Observe(stopwatch.Elapsed.TotalSeconds);
                         return; // duplicate
+                    }
 
+                    TsmMetrics.KafkaMessagesProcessedTotal.WithLabels(_topic, "success").Inc();
+                    TsmMetrics.KafkaProcessingDurationSeconds.WithLabels(_topic).Observe(stopwatch.Elapsed.TotalSeconds);
                     return;
                 }
                 catch (Exception ex)
@@ -144,6 +157,8 @@ namespace TradingSystemsMonitoring.RestAPI.Services.TradingData
                     {
                         _logger.LogWarning(ex, "Message processing failed after {MaxRetries} attempts, sending to DLQ. Key={Key}", _maxRetryCount, result.Message.Key);
                         await SendToDlq(result, ex);
+                        TsmMetrics.KafkaMessagesProcessedTotal.WithLabels(_topic, "dlq").Inc();
+                        TsmMetrics.KafkaProcessingDurationSeconds.WithLabels(_topic).Observe(stopwatch.Elapsed.TotalSeconds);
                     }
                     else
                         await Task.Delay(_retryDelayMs, ct);
@@ -186,6 +201,7 @@ namespace TradingSystemsMonitoring.RestAPI.Services.TradingData
                     Key = result.Message.Key,
                     Value = JsonConvert.SerializeObject(dlqMessage)
                 });
+            TsmMetrics.KafkaDlqSentTotal.WithLabels(_topic, _dlqTopic).Inc();
             _logger.LogWarning("Message sent to DLQ. Topic={DlqTopic}, Key={Key}, Error={Error}", _dlqTopic, result.Message.Key, ex.Message);
         }
 

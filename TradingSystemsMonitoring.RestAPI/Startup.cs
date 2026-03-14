@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Prometheus;
 using Serilog;
 using StackExchange.Redis;
 using System;
@@ -27,6 +28,7 @@ using TradingSystemsMonitoring.RestAPI.Abstractions.Identity;
 using TradingSystemsMonitoring.RestAPI.Hubs;
 using TradingSystemsMonitoring.RestAPI.Services.Handlers;
 using TradingSystemsMonitoring.RestAPI.Services.Identity;
+using TradingSystemsMonitoring.RestAPI.Metrics;
 using TradingSystemsMonitoring.RestAPI.Services.TradingData;
 
 
@@ -146,6 +148,8 @@ namespace TradingSystemsMonitoring.RestAPI
             });
 
             app.UseRouting();
+            app.UseMiddleware<HttpFailedRequestsMetricsMiddleware>();
+            app.UseHttpMetrics();
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseCors("CorsPolicy");
@@ -154,6 +158,7 @@ namespace TradingSystemsMonitoring.RestAPI
             {
                 endpoints.MapControllers();
                 endpoints.MapHub<TradingDataMonitoringHub>("/api/tradingDataMonitoring");
+                endpoints.MapMetrics();
             });
         }
     }

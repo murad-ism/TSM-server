@@ -9,6 +9,7 @@ using TradingSystemsMonitoring.Data.Abstractions;
 using TradingSystemsMonitoring.Data.Services.DTO;
 using TradingSystemsMonitoring.DataModel.Entities.Trading;
 using TradingSystemsMonitoring.RestAPI.Controllers.Base;
+using TradingSystemsMonitoring.RestAPI.Metrics;
 
 namespace TradingSystemsMonitoring.RestAPI.Controllers
 {
@@ -52,6 +53,7 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<AccountClosedTradeDTO>>> GetTrades([FromBody] TradesParams tradesParams)
         {
+            TsmMetrics.ApiTradesRequestsTotal.WithLabels("Trades").Inc();
             if (tradesParams == null)
                 return BadRequest("Request body is required.");
             var trades = await AccountClosedTradesService.SearchByParams(
@@ -74,6 +76,7 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<int>> GetTradesCount([FromBody] TradesParams tradesParams)
         {
+            TsmMetrics.ApiTradesRequestsTotal.WithLabels("TradesCount").Inc();
             if (tradesParams == null)
                 return BadRequest("Request body is required.");
             var trades = await AccountClosedTradesService.CountByParams(
@@ -103,6 +106,7 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<TradingLogRecordDTO>>> GetLogRecords([FromBody] TradingLogRecordParams logParams)
         {
+            TsmMetrics.ApiLogRecordsRequestsTotal.Inc();
             if (logParams == null)
                 return BadRequest("Request body is required.");
             var logRecords = await TradingLogRecordDbService.GetRecordsByDate(
@@ -123,6 +127,7 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<string[]>> GetSystemIds()
         {
+            TsmMetrics.ApiTradesRequestsTotal.WithLabels("SystemIds").Inc();
             var systemIds = await AccountClosedTradesService.GetSystemIds();
             return Ok(systemIds);
         }
@@ -140,6 +145,7 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<string[]>> GetAccountIds()
         {
+            TsmMetrics.ApiTradesRequestsTotal.WithLabels("AccountIds").Inc();
             var systemIds = await AccountClosedTradesService.GetAccountIds();
             return Ok(systemIds);
         }
@@ -157,6 +163,7 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<Security[]>> GetSecurityIds()
         {
+            TsmMetrics.ApiTradesRequestsTotal.WithLabels("Securities").Inc();
             var securities = await SecurityService.GetSecurities();
             return Ok(securities);
         }
@@ -176,6 +183,7 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<AccountClosedTradeDTO>>> GetCurrentTrades()
         {
+            TsmMetrics.ApiTradesRequestsTotal.WithLabels("Current").Inc();
             var trades = await AccountClosedTradesService.GetCurrentTradesAsync();
             return Ok(trades);
         }
