@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Moq;
+using TradingSystemsMonitoring.RestAPI.BackgroundServices;
 using TradingSystemsMonitoring.RestAPI.Hubs;
-using TradingSystemsMonitoring.RestAPI.Services.TradingData;
 
 namespace TradingSystemsMonitoring.Tests
 {

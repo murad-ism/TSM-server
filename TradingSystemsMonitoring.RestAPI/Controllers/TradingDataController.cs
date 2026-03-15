@@ -4,26 +4,29 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using TradingSystemsMonitoring.Data.Abstractions;
-using TradingSystemsMonitoring.Data.Services.DTO;
+using TradingSystemsMonitoring.Application.Abstractions;
+using TradingSystemsMonitoring.Application.DTO;
 using TradingSystemsMonitoring.DataModel.Entities.Trading;
-using TradingSystemsMonitoring.RestAPI.Controllers.Base;
 using TradingSystemsMonitoring.RestAPI.Metrics;
 
 namespace TradingSystemsMonitoring.RestAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class TradingDataController : TsmController
+    public class TradingDataController : ControllerBase
     {
+        private readonly IAccountClosedTradesService _accountClosedTradesService;
+        private readonly ISecurityService _securityService;
+        private readonly ITradingLogsExplorerService _tradingLogsExplorerService;
+
         public TradingDataController(
-            ILogger<TradingDataController> logger,
             IAccountClosedTradesService accountClosedTradesService,
             ISecurityService securityService,
             ITradingLogsExplorerService tradingLogsExplorerService)
-            : base(logger, accountClosedTradesService, securityService, tradingLogsExplorerService)
         {
+            _accountClosedTradesService = accountClosedTradesService;
+            _securityService = securityService;
+            _tradingLogsExplorerService = tradingLogsExplorerService;
         }
 
         /// <summary>
@@ -56,7 +59,7 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
             TsmMetrics.ApiTradesRequestsTotal.WithLabels("Trades").Inc();
             if (tradesParams == null)
                 return BadRequest("Request body is required.");
-            var trades = await AccountClosedTradesService.SearchByParams(
+            var trades = await _accountClosedTradesService.SearchByParams(
                 tradesParams.SystemId, tradesParams.SecurityId, tradesParams.DateFrom, tradesParams.DateTo,
                 tradesParams.PageIndex, tradesParams.PageSize);
             return Ok(trades);
@@ -79,7 +82,7 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
             TsmMetrics.ApiTradesRequestsTotal.WithLabels("TradesCount").Inc();
             if (tradesParams == null)
                 return BadRequest("Request body is required.");
-            var trades = await AccountClosedTradesService.CountByParams(
+            var trades = await _accountClosedTradesService.CountByParams(
                 tradesParams.SystemId, tradesParams.SecurityId, tradesParams.DateFrom, tradesParams.DateTo);
             return Ok(trades);
         }
@@ -109,7 +112,7 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
             TsmMetrics.ApiLogRecordsRequestsTotal.Inc();
             if (logParams == null)
                 return BadRequest("Request body is required.");
-            var logRecords = await TradingLogRecordDbService.GetRecordsByDate(
+            var logRecords = await _tradingLogsExplorerService.GetRecordsByDate(
                 logParams.SystemId, logParams.Date);
             return Ok(logRecords);
         }
@@ -128,7 +131,7 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         public async Task<ActionResult<string[]>> GetSystemIds()
         {
             TsmMetrics.ApiTradesRequestsTotal.WithLabels("SystemIds").Inc();
-            var systemIds = await AccountClosedTradesService.GetSystemIds();
+            var systemIds = await _accountClosedTradesService.GetSystemIds();
             return Ok(systemIds);
         }
 
@@ -146,7 +149,7 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         public async Task<ActionResult<string[]>> GetAccountIds()
         {
             TsmMetrics.ApiTradesRequestsTotal.WithLabels("AccountIds").Inc();
-            var systemIds = await AccountClosedTradesService.GetAccountIds();
+            var systemIds = await _accountClosedTradesService.GetAccountIds();
             return Ok(systemIds);
         }
 
@@ -164,7 +167,7 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         public async Task<ActionResult<Security[]>> GetSecurityIds()
         {
             TsmMetrics.ApiTradesRequestsTotal.WithLabels("Securities").Inc();
-            var securities = await SecurityService.GetSecurities();
+            var securities = await _securityService.GetSecurities();
             return Ok(securities);
         }
 
@@ -184,7 +187,7 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         public async Task<ActionResult<IEnumerable<AccountClosedTradeDTO>>> GetCurrentTrades()
         {
             TsmMetrics.ApiTradesRequestsTotal.WithLabels("Current").Inc();
-            var trades = await AccountClosedTradesService.GetCurrentTradesAsync();
+            var trades = await _accountClosedTradesService.GetCurrentTradesAsync();
             return Ok(trades);
         }
     }

@@ -33,8 +33,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TradingSystemsMonitoring.Application\TradingSystemsMonitoring.Application.csproj" />
     <ProjectReference Include="..\TradingSystemsMonitoring.DataModel\TradingSystemsMonitoring.DataModel.csproj" />
-    <ProjectReference Include="..\TradingSystemsMonitoring.Data\TradingSystemsMonitoring.Data.csproj" />
+    <ProjectReference Include="..\TradingSystemsMonitoring.Infrastructure\TradingSystemsMonitoring.Infrastructure.csproj" />
     <ProjectReference Include="..\TradingSystemsMonitoring.RestAPI\TradingSystemsMonitoring.RestAPI.csproj" />
   </ItemGroup>
 
@@ -43,3 +44,4 @@
   </ItemGroup>
 
 </Project>
+

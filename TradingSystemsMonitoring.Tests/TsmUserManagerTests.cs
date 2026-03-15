@@ -2,8 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using TradingSystemsMonitoring.DataModel.DbContext;
 using TradingSystemsMonitoring.DataModel.Entities.Identity;
-using TradingSystemsMonitoring.RestAPI.Abstractions.Identity;
-using TradingSystemsMonitoring.RestAPI.Services.Identity;
+using TradingSystemsMonitoring.Application.Abstractions.Identity;
 using TradingSystemsMonitoring.Tests.Seeders;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -11,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using TradingSystemsMonitoring.DataModel.DbContext.Settings;
 using TradingSystemsMonitoring.DataModel.DbContext.Factories;
 using TradingSystemsMonitoring.Tests.Helpers;
+using TradingSystemsMonitoring.Infrastructure.Services.Identity;
 
 namespace TradingSystemsMonitoring.Tests
 {
@@ -156,3 +156,4 @@ namespace TradingSystemsMonitoring.Tests
         }
     }
 }
+

@@ -1,7 +1,6 @@
-using TradingSystemsMonitoring.Data;
-using TradingSystemsMonitoring.Data.Services;
-using TradingSystemsMonitoring.DataModel.DbContext.Factories;
+﻿using TradingSystemsMonitoring.DataModel.DbContext.Factories;
 using TradingSystemsMonitoring.DataModel.DbContext.Settings;
+using TradingSystemsMonitoring.Infrastructure.Services;
 using TradingSystemsMonitoring.Tests.Helpers;
 using TradingSystemsMonitoring.Tests.Seeders;
 

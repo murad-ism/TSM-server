@@ -52,9 +52,10 @@ Scripts in the repository root run and stop the system in containers:
 
 ```
 TSM-server/
-├── TradingSystemsMonitoring.RestAPI/     # REST API, controllers, hubs, hosted services
-├── TradingSystemsMonitoring.DataModel/    # Entities, DbContext, EF migrations, settings
-├── TradingSystemsMonitoring.Data/        # Repositories, data access, DTOs
+├── TradingSystemsMonitoring.RestAPI/      # REST API, controllers, hubs, middleware, host services
+├── TradingSystemsMonitoring.Application/  # Application contracts (abstractions) and DTOs
+├── TradingSystemsMonitoring.Infrastructure/ # Repositories and concrete integrations (Identity, Kafka, NetMQ, data access)
+├── TradingSystemsMonitoring.DataModel/    # Entities, DbContext, EF migrations, configuration
 ├── TradingSystemsMonitoring.Tests/       # Unit tests
 ├── TradingSystemsMonitoring.ApiTests/    # REST API integration tests
 ├── docker-compose.yml
@@ -68,22 +69,38 @@ TSM-server/
 
 ## Solution structure
 
-The project consists of five main components:
+The project consists of six main components:
 
 - **TradingSystemsMonitoring.RestAPI**  
   Startup project. REST API for monitoring trading system state. Used for communication with client applications or external services.
 
-- **TradingSystemsMonitoring.DataModel**  
-  Data models used by the system. Contains entity and DTO definitions.
+- **TradingSystemsMonitoring.Application**  
+  Application layer contracts and use-case models (abstractions and DTOs) used by the API and infrastructure implementations.
 
-- **TradingSystemsMonitoring.Data**  
-  Repository implementations and data access logic. Works with the database and encapsulates storage details.
+- **TradingSystemsMonitoring.Infrastructure**  
+  Infrastructure layer with concrete repository and service implementations (Identity, Kafka, NetMQ, Redis, SQL/Mongo integrations).
+
+- **TradingSystemsMonitoring.DataModel**  
+  Data models used by the system. Contains entities, DbContexts, EF mappings, and migrations.
 
 - **TradingSystemsMonitoring.Tests**  
   Unit tests for system components. Covers business logic and models.
 
 - **TradingSystemsMonitoring.ApiTests**  
   REST API integration tests. Used to verify correct interaction between components over HTTP.
+
+---
+
+## Layered architecture
+
+- **Application layer** (`TradingSystemsMonitoring.Application`)  
+  Defines business-facing contracts (`IAccountClosedTradesService`, `ISecurityService`, `ITradingLogsExplorerService`, `ITsmUsersService`, `IJwtGenerator`, `ITradingDataSubscriber`) and shared DTOs/models used by use cases and controllers.
+
+- **Infrastructure layer** (`TradingSystemsMonitoring.Infrastructure`)  
+  Implements application contracts with concrete integrations for SQL Server, PostgreSQL Identity, MongoDB, Redis, Kafka, and NetMQ.
+
+- **Presentation layer** (`TradingSystemsMonitoring.RestAPI`)  
+  Exposes HTTP/SignalR endpoints, middleware, and hosted services, and wires dependencies through DI.
 
 ---
 

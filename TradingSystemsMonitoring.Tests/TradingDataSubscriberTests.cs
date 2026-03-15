@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NetMQ;
 using NetMQ.Sockets;
-using TradingSystemsMonitoring.RestAPI.Services.TradingData;
+using TradingSystemsMonitoring.Infrastructure.Services.TradingData;
 using TradingSystemsMonitoring.Tests.Helpers;
 
 namespace TradingSystemsMonitoring.Tests

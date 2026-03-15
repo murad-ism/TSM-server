@@ -1,10 +1,11 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS testrunner
+﻿FROM mcr.microsoft.com/dotnet/sdk:8.0 AS testrunner
 
 WORKDIR /src
 
 # Copy project files
 COPY ./TradingSystemsMonitoring.DataModel/*.csproj ./TradingSystemsMonitoring.DataModel/
-COPY ./TradingSystemsMonitoring.Data/*.csproj ./TradingSystemsMonitoring.Data/
+COPY ./TradingSystemsMonitoring.Application/*.csproj ./TradingSystemsMonitoring.Application/
+COPY ./TradingSystemsMonitoring.Infrastructure/*.csproj ./TradingSystemsMonitoring.Infrastructure/
 COPY ./TradingSystemsMonitoring.RestAPI/*.csproj ./TradingSystemsMonitoring.RestAPI/
 COPY ./TradingSystemsMonitoring.Tests/*.csproj ./TradingSystemsMonitoring.Tests/
 COPY ./TradingSystemsMonitoring.ApiTests/*.csproj ./TradingSystemsMonitoring.ApiTests/

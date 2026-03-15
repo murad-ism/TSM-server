@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -12,13 +12,6 @@
     <SatelliteResourceLanguages>en-US;ru-RU</SatelliteResourceLanguages>
     <DocumentationFile>D:\Trading\Algo\Sources\TradeSystemMonitoring\TradingSystemsMonitoring.RestAPI\TradingSystemsMonitoring.RestAPI.xml</DocumentationFile>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="NewFolder\**" />
-    <Content Remove="NewFolder\**" />
-    <EmbeddedResource Remove="NewFolder\**" />
-    <None Remove="NewFolder\**" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Confluent.Kafka" Version="2.13.2" />
@@ -49,7 +42,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TradingSystemsMonitoring.DataModel\TradingSystemsMonitoring.DataModel.csproj" />
-    <ProjectReference Include="..\TradingSystemsMonitoring.Data\TradingSystemsMonitoring.Data.csproj" />
+    <ProjectReference Include="..\TradingSystemsMonitoring.Application\TradingSystemsMonitoring.Application.csproj" />
+    <ProjectReference Include="..\TradingSystemsMonitoring.Infrastructure\TradingSystemsMonitoring.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -67,3 +61,4 @@
 
 
 </Project>
+

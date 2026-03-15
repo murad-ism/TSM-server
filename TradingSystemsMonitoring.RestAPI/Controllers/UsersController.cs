@@ -5,9 +5,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using TradingSystemsMonitoring.Application.Abstractions.Identity;
 using TradingSystemsMonitoring.DataModel.Entities.Identity;
-using TradingSystemsMonitoring.RestAPI.Abstractions.Identity;
-using TradingSystemsMonitoring.RestAPI.Services.Identity;
 
 namespace TradingSystemsMonitoring.RestAPI.Controllers
 {
@@ -101,3 +100,4 @@ namespace TradingSystemsMonitoring.RestAPI.Controllers
         }
     }
 }
+

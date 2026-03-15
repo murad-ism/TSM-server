@@ -16,20 +16,20 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Text;
-using TradingSystemsMonitoring.Data.Abstractions;
-using TradingSystemsMonitoring.Data.Services;
+using TradingSystemsMonitoring.Application.Abstractions;
+using TradingSystemsMonitoring.Infrastructure.Services;
 using TradingSystemsMonitoring.DataModel.DbContext;
 using TradingSystemsMonitoring.DataModel.DbContext.Factories;
 using TradingSystemsMonitoring.DataModel.DbContext.Settings;
 using TradingSystemsMonitoring.DataModel.Entities.Identity;
+using TradingSystemsMonitoring.Infrastructure.Services.Identity;
+using TradingSystemsMonitoring.Infrastructure.Services.TradingData;
 using TradingSystemsMonitoring.RestAPI.Settings;
-using TradingSystemsMonitoring.RestAPI.Abstractions;
-using TradingSystemsMonitoring.RestAPI.Abstractions.Identity;
+using TradingSystemsMonitoring.Application.Abstractions.Identity;
+using TradingSystemsMonitoring.RestAPI.BackgroundServices;
+using TradingSystemsMonitoring.RestAPI.Exceptions;
 using TradingSystemsMonitoring.RestAPI.Hubs;
-using TradingSystemsMonitoring.RestAPI.Services.Handlers;
-using TradingSystemsMonitoring.RestAPI.Services.Identity;
 using TradingSystemsMonitoring.RestAPI.Metrics;
-using TradingSystemsMonitoring.RestAPI.Services.TradingData;
 
 
 namespace TradingSystemsMonitoring.RestAPI
@@ -71,20 +71,27 @@ namespace TradingSystemsMonitoring.RestAPI
 
             services.AddSignalR();
             services.AddSingleton<ITradingDataSubscriber, NetMqDataSubscriber>();
-            services.AddHostedService<TradingLiveDataStreamer>();
             services.AddSingleton<TsmExceptionHandler>();
 
             services.AddSingleton<IConnectionMultiplexer>(_ =>
                 ConnectionMultiplexer.Connect(RedisDbSettings.ConnectionString));
-
             services.AddSingleton(sp =>
             {
                 var redis = sp.GetRequiredService<IConnectionMultiplexer>();
                 var logger = sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<KafkaTradeConsumer>>();
-                return new KafkaTradeConsumer(KafkaSettings.Instance, redis, logger);
+                return new KafkaTradeConsumer(
+                    KafkaSettings.Instance.Topic,
+                    KafkaSettings.Instance.DlqTopic,
+                    KafkaSettings.Instance.CreateConsumerConfig(),
+                    KafkaSettings.Instance.CreateProducerConfig(),
+                    KafkaSettings.Instance.QueueCapacity,
+                    KafkaSettings.Instance.WorkerCount,
+                    redis,
+                    logger);
             });
 
-            services.AddHostedService<KafkaConsumerHostedService>();
+            services.AddHostedService<KafkaConsumer>();
+            services.AddHostedService<TradingLiveDataStreamer>();
             
             services.AddCors(options => options.AddPolicy("CorsPolicy",
                 builder =>
@@ -163,3 +170,5 @@ namespace TradingSystemsMonitoring.RestAPI
         }
     }
 }
+
+

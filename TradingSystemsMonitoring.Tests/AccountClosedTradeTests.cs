@@ -1,6 +1,6 @@
-using Moq;
+﻿using Moq;
 using StackExchange.Redis;
-using TradingSystemsMonitoring.Data.Services;
+using TradingSystemsMonitoring.Infrastructure.Services;
 using TradingSystemsMonitoring.DataModel.DbContext.Settings;
 using TradingSystemsMonitoring.Tests.Helpers;
 
@@ -67,3 +67,4 @@ namespace TradingSystemsMonitoring.Tests
         }
     }
 }
+
