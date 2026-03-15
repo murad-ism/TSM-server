@@ -47,13 +47,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="TradeDataAccessor.Shared">
-      <HintPath>..\..\..\Bin\Programs\MomentumM0\TradeDataAccessor.Shared.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="TradingSystemsMonitoring.RestAPI.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
