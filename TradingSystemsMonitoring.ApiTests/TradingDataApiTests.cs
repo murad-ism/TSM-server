@@ -73,8 +73,8 @@ namespace TradingSystemsMonitoring.ApiTests
         [OneTimeTearDown]
         public void TearDown()
         {
-            _client.Dispose();
-            _factory.Dispose();
+            _client?.Dispose();
+            _factory?.Dispose();
         }
     }
 }

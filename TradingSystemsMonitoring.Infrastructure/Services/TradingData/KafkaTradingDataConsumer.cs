@@ -112,17 +112,24 @@ namespace TradingSystemsMonitoring.Infrastructure.Services.TradingData
 
         private async Task WorkerLoop(CancellationToken ct)
         {
-            await foreach (var message in _channel.Reader.ReadAllAsync(ct))
+            try
             {
-                try
+                await foreach (var message in _channel.Reader.ReadAllAsync(ct))
                 {
-                    await ProcessMessage(message, ct);
-                    _consumer.Commit(message);
+                    try
+                    {
+                        await ProcessMessage(message, ct);
+                        _consumer.Commit(message);
+                    }
+                    catch (Exception)
+                    {
+                        // logged in processing methods
+                    }
                 }
-                catch (Exception)
-                {
-                    // logged in processing methods
-                }
+            }
+            catch (OperationCanceledException) when (ct.IsCancellationRequested)
+            {
+                _logger.LogDebug("Kafka worker loop canceled.");
             }
         }
 
@@ -130,36 +137,70 @@ namespace TradingSystemsMonitoring.Infrastructure.Services.TradingData
             ConsumeResult<string, string> result,
             CancellationToken ct)
         {
-            int attempt = 0;
-
-            while (attempt < _maxRetryCount)
+            for (int attempt = 1; attempt <= _maxRetryCount; attempt++)
             {
                 try
                 {
-                    var trade = JsonConvert.DeserializeObject<TradeDealResult>(result.Message.Value)
-                                ?? throw new Exception("Deserialization failed");
-
-                    var saved = await SaveTrade(trade);
-
-                    if (!saved)
-                    {
-                        return; // duplicate
-                    }
-
+                    await ProcessMessageOnce(result);
                     return;
+                }
+                catch (OperationCanceledException) when (ct.IsCancellationRequested)
+                {
+                    _logger.LogDebug("Message processing canceled. Key={Key}", result.Message.Key);
+                    throw;
                 }
                 catch (Exception ex)
                 {
-                    attempt++;
-                    if (attempt >= _maxRetryCount)
+                    if (attempt == _maxRetryCount)
                     {
-                        _logger.LogWarning(ex, "Message processing failed after {MaxRetries} attempts, sending to DLQ. Key={Key}", _maxRetryCount, result.Message.Key);
-                        await SendToDlq(result, ex);
+                        await HandleFinalFailure(result, ex);
+                        return;
                     }
-                    else
-                        await Task.Delay(_retryDelayMs, ct);
+
+                    await DelayBeforeRetry(result, attempt, ex, ct);
                 }
             }
+        }
+
+        private async Task ProcessMessageOnce(ConsumeResult<string, string> result)
+        {
+            var trade = JsonConvert.DeserializeObject<TradeDealResult>(result.Message.Value)
+                        ?? throw new Exception("Deserialization failed");
+
+            var saved = await SaveTrade(trade);
+            if (!saved)
+            {
+                // Duplicate message; treat as successfully handled.
+                _logger.LogDebug("Skipped duplicate trade message. Key={Key}", result.Message.Key);
+            }
+        }
+
+        private async Task DelayBeforeRetry(
+            ConsumeResult<string, string> result,
+            int attempt,
+            Exception ex,
+            CancellationToken ct)
+        {
+            _logger.LogWarning(
+                ex,
+                "Message processing failed on attempt {Attempt}/{MaxRetries}. Key={Key}. Retrying in {RetryDelayMs} ms.",
+                attempt,
+                _maxRetryCount,
+                result.Message.Key,
+                _retryDelayMs);
+
+            await Task.Delay(_retryDelayMs, ct);
+        }
+
+        private async Task HandleFinalFailure(ConsumeResult<string, string> result, Exception ex)
+        {
+            _logger.LogWarning(
+                ex,
+                "Message processing failed after {MaxRetries} attempts, sending to DLQ. Key={Key}",
+                _maxRetryCount,
+                result.Message.Key);
+
+            await SendToDlq(result, ex);
         }
 
         private async Task<bool> SaveTrade(TradeDealResult trade)
@@ -205,7 +246,14 @@ namespace TradingSystemsMonitoring.Infrastructure.Services.TradingData
         {
             _cts.Cancel();
             _channel.Writer.Complete();
-            await Task.WhenAll(_workers);
+            try
+            {
+                await Task.WhenAll(_workers);
+            }
+            catch (OperationCanceledException)
+            {
+                // expected while shutting down
+            }
 
             _consumer.Close();
             _consumer.Dispose();
