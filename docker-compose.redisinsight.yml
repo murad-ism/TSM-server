@@ -1,0 +1,21 @@
+# UI: http://localhost:5540  → Add Redis database → Host: redis, Port: 6379
+
+services:
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: redisinsight
+    ports:
+      - "5540:5540"
+    volumes:
+      - redisinsight_data:/data
+    networks:
+      - tsm_stack
+
+networks:
+  tsm_stack:
+    external: true
+    # Must match the main compose project’s `tsm_net` (where `redis` runs).
+    name: tsm-server_tsm_net
+
+volumes:
+  redisinsight_data:
