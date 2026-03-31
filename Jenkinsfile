@@ -17,6 +17,19 @@ pipeline {
     }
 
     stages {
+        stage('Preflight') {
+            steps {
+                sh '''
+                    which docker
+                    docker version
+                    docker compose version
+                    which kubectl
+                    kubectl version --client
+                    git --version
+                '''
+            }
+        }
+
         stage('Source') {
             steps {
                 checkout scm
