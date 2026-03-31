@@ -96,6 +96,14 @@ services:
         condition: service_healthy
       mongo:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka1:
+        condition: service_healthy
+      kafka2:
+        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
     networks:
       - "tsm_net"
 
@@ -127,6 +135,12 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      kafka1:
+        condition: service_healthy
+      kafka2:
+        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0

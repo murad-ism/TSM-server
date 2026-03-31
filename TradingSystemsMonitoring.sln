@@ -17,10 +17,12 @@ Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-co
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
 	ProjectSection(SolutionItems) = preProject
+		docker-compose.jenkins.yml = docker-compose.jenkins.yml
 		docker-compose.kafka-ui.yml = docker-compose.kafka-ui.yml
 		docker-compose.redisinsight.yml = docker-compose.redisinsight.yml
 		docker-start.cmd = docker-start.cmd
 		docker-stop.cmd = docker-stop.cmd
+		ci\jenkins\Dockerfile = ci\jenkins\Dockerfile
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradingSystemsMonitoring.Application", "TradingSystemsMonitoring.Application\TradingSystemsMonitoring.Application.csproj", "{7EC14364-1DED-4407-AD0A-2D51756440D4}"
