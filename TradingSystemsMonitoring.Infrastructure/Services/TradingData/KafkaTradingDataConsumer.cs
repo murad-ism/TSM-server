@@ -81,6 +81,11 @@ namespace TradingSystemsMonitoring.Infrastructure.Services.TradingData
                 consumer.Commit();
                 _logger.LogDebug("Offsets committed before partition revocation");
             }
+            catch (KafkaException ex) when (ex.Error.Code == ErrorCode.Local_NoOffset)
+            {
+                // Expected when no messages were processed/committed before shutdown or rebalance.
+                _logger.LogDebug("No offsets to commit during partition revocation.");
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error committing offsets during rebalance");
