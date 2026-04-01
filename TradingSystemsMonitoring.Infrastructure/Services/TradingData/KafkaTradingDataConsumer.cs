@@ -23,6 +23,7 @@ namespace TradingSystemsMonitoring.Infrastructure.Services.TradingData
         private readonly Channel<ConsumeResult<string, string>> _channel;
         private readonly CancellationTokenSource _cts = new();
         private readonly List<Task> _workers = new();
+        private Task? _disposeTask;
 
         private readonly int _maxRetryCount = 3;
         private readonly int _retryDelayMs = 1000;
@@ -221,7 +222,7 @@ namespace TradingSystemsMonitoring.Infrastructure.Services.TradingData
 
             _ = tran.StringSetAsync(processedKey, "1", TimeSpan.FromDays(1));
             _ = tran.StringSetAsync(tradeKey, json);
-            _ = tran.SetAddAsync(indexKey, trade.Id.ToString());
+            _ = tran.SetAddAsync(indexKey, trade.Id);
 
             return await tran.ExecuteAsync();
         }
@@ -247,10 +248,23 @@ namespace TradingSystemsMonitoring.Infrastructure.Services.TradingData
         }
 
         /// <inheritdoc/>
-        public async ValueTask DisposeAsync()
+        public ValueTask DisposeAsync()
+        {
+            var disposeTask = _disposeTask;
+            if (disposeTask != null)
+            {
+                return new ValueTask(disposeTask);
+            }
+
+            var createdTask = DisposeCoreAsync();
+            var priorTask = Interlocked.CompareExchange(ref _disposeTask, createdTask, null);
+            return new ValueTask(priorTask ?? createdTask);
+        }
+
+        private async Task DisposeCoreAsync()
         {
             _cts.Cancel();
-            _channel.Writer.Complete();
+            _channel.Writer.TryComplete();
             try
             {
                 await Task.WhenAll(_workers);
