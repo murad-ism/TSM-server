@@ -88,46 +88,22 @@ pipeline {
                 withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS_ID}", variable: 'KUBECONFIG_FILE')]) {
                     sh '''
                         export KUBECONFIG="${KUBECONFIG_FILE}"
+                        kubectl version --client
 
-                        kubectl apply -f - <<EOF
-                        apiVersion: apps/v1
-                        kind: Deployment
-                        metadata:
-                          name: ${APP_NAME}
-                          labels:
-                            app: ${APP_NAME}
-                        spec:
-                          replicas: 2
-                          selector:
-                            matchLabels:
-                              app: ${APP_NAME}
-                          template:
-                            metadata:
-                              labels:
-                                app: ${APP_NAME}
-                            spec:
-                              containers:
-                              - name: ${APP_NAME}
-                                image: ${FULL_IMAGE}
-                                imagePullPolicy: Always
-                                ports:
-                                - containerPort: 8080
-                        ---
-                        apiVersion: v1
-                        kind: Service
-                        metadata:
-                          name: ${APP_NAME}
-                          labels:
-                            app: ${APP_NAME}
-                        spec:
-                          selector:
-                            app: ${APP_NAME}
-                          ports:
-                          - protocol: TCP
-                            port: 80
-                            targetPort: 8080
-                          type: ClusterIP
-                        EOF
+						kubectl config get-contexts
+						kubectl config current-context || {
+						  echo "No current-context in kubeconfig. Set one with kubectl config use-context <name>."
+						  exit 1
+						}
+
+                        mkdir -p .jenkins-tmp
+                        sed \
+                          -e "s|__APP_NAME__|${APP_NAME}|g" \
+                          -e "s|__FULL_IMAGE__|${FULL_IMAGE}|g" \
+                          k8s/tsm-server-api.tmpl.yaml > .jenkins-tmp/tsm-server-api.yaml
+
+                        kubectl apply --dry-run=client -f .jenkins-tmp/tsm-server-api.yaml
+                        kubectl apply -f .jenkins-tmp/tsm-server-api.yaml
                     '''
                 }
             }
